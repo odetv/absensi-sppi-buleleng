@@ -198,7 +198,7 @@ export default function Home() {
           <div className="text-sm text-gray-600 space-y-2">
             <div className="flex items-center justify-between gap-2">
               <div>
-                Lokasi Terkini:{" "}
+                Lokasi:{" "}
                 {latitude && longitude ? (
                   <span className="font-medium">
                     <a
