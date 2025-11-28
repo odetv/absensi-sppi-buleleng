@@ -1,4 +1,3 @@
-// app/api/server-time/route.ts
 export async function GET() {
   const nowUTC = new Date();
   const timeInWITA = new Date(nowUTC.getTime() + 8 * 60 * 60 * 1000); // UTC+8
