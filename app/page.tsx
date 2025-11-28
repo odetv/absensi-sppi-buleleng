@@ -42,6 +42,10 @@ export default function Home() {
             Korwil Buleleng
           </a>
         </div>
+        <div className="w-full my-6 pt-3 border-b border-gray-200" />
+        <p className="text-xs text-center text-gray-500">
+          © {new Date().getFullYear()} - Tim Data SPPI Buleleng Bali
+        </p>
       </div>
     </main>
   );
