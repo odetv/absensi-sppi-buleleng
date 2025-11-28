@@ -1,48 +1,39 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 import { useEffect, useState } from "react";
+import LOGO_SPPI from "../../public/logo-sppi.png";
 import { LIST_NAME } from "../../lib/list_name";
 import { LIST_POSITION } from "../../lib/list_position";
-import LOGO_SPPI from "../../public/logo-sppi.png";
+import { TypeSPPGLocation } from "../../lib/sppg_location";
+import { FormatDate, FormatTime } from "../../components/DatetimeFormat";
+import { MatchingLocation } from "../../components/ValidationLocation";
+import { MatchingDatetime } from "../../components/ValidationDatetime";
 
 export default function Home() {
-  const [mounted, setMounted] = useState(false);
+  const [datetimeMounted, setDatetimeMounted] = useState(false);
   const [name, setName] = useState("");
   const [position, setPosition] = useState("");
   const [description, setDescription] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
+  const [sppgLocation, setSppgLocation] = useState<TypeSPPGLocation | null>(
+    null
+  );
   const [time, setTime] = useState(new Date());
-  const [clockMismatch, setClockMismatch] = useState(false);
   const [loadingIn, setLoadingIn] = useState(false);
   const [loadingOut, setLoadingOut] = useState(false);
+  const clockMismatch = MatchingDatetime();
 
   const isFormValid =
-    name && position && description && latitude && longitude && !clockMismatch;
+    name &&
+    position &&
+    description &&
+    latitude &&
+    longitude &&
+    sppgLocation &&
+    !clockMismatch;
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    const checkClientTime = async () => {
-      try {
-        const res = await fetch(`/api/server-time?t=${Date.now()}`, {
-          cache: "no-store",
-        });
-        const data = await res.json();
-        const serverTime = data.millis;
-        const localTime = new Date();
-        const offset = localTime.getTimezoneOffset(); // -480 = WITA
-        const clientTime = localTime.getTime() - offset * 60 * 1000;
-        const diffMinutes = Math.abs(serverTime - clientTime) / 1000 / 60;
-        setClockMismatch(diffMinutes > 1);
-      } catch (err) {
-        console.error("Gagal mengambil waktu server", err);
-      }
-    };
-    const interval = setInterval(checkClientTime, 2000);
-    return () => clearInterval(interval);
+    setDatetimeMounted(true);
   }, []);
 
   useEffect(() => {
@@ -54,50 +45,38 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("id-ID", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      timeZone: "Asia/Makassar",
-    });
-  };
+  useEffect(() => {
+    if (latitude && longitude) {
+      const location = MatchingLocation(
+        parseFloat(latitude),
+        parseFloat(longitude)
+      );
+      setSppgLocation(location);
+    }
+  }, [latitude, longitude]);
 
-  const formatTime = (date: Date) => {
-    return date
-      .toLocaleTimeString("id-ID", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
-        timeZone: "Asia/Makassar",
-      })
-      .replaceAll(".", ":");
-  };
-
-  const handleSubmit = async (typeAbsent: "masuk" | "pulang") => {
+  const handleSubmitAbsent = async (type: "masuk" | "pulang") => {
     if (!isFormValid) return;
-    if (typeAbsent === "masuk") setLoadingIn(true);
-    if (typeAbsent === "pulang") setLoadingOut(true);
+    if (type === "masuk") setLoadingIn(true);
+    if (type === "pulang") setLoadingOut(true);
     const now = new Date();
     const date = now.toLocaleDateString("id-ID");
     const time = now.toTimeString().split(" ")[0];
     const day = now.toLocaleDateString("id-ID", { weekday: "long" });
     const sheetName = `${now.getMonth() + 1}-${now.getFullYear()}`;
-    const lokasiUrl = `https://www.google.com/maps/place/${latitude},${longitude}/@${latitude},${longitude},17z`;
 
     const data = {
       time,
       day,
       date,
-      type: typeAbsent === "masuk" ? "Absen Masuk" : "Absen Keluar",
+      absentType: type === "masuk" ? "Masuk" : "Keluar",
       name,
       position,
       description,
       latitude,
       longitude,
-      location: lokasiUrl,
+      sppgLocation: sppgLocation.name,
+      mapsLocation: `https://www.google.com/maps/place/${latitude},${longitude}/@${latitude},${longitude},17z`,
       sheetName,
     };
 
@@ -115,7 +94,7 @@ export default function Home() {
         return;
       }
 
-      alert(`Hai ${name}, absen ${typeAbsent} berhasil disimpan.`);
+      alert(`Hai ${name}, absen ${type} berhasil disimpan.`);
       setName("");
       setPosition("");
       setDescription("");
@@ -128,8 +107,8 @@ export default function Home() {
       console.error(err);
       alert("❌ Terjadi kesalahan koneksi. Coba beberapa saat lagi.");
     } finally {
-      if (typeAbsent === "masuk") setLoadingIn(false);
-      if (typeAbsent === "pulang") setLoadingOut(false);
+      if (type === "masuk") setLoadingIn(false);
+      if (type === "pulang") setLoadingOut(false);
     }
   };
 
@@ -137,6 +116,7 @@ export default function Home() {
     <main className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
         <div className="mb-4 text-center">
+          {/* eslint-disable @next/next/no-img-element */}
           <img
             src={LOGO_SPPI.src}
             alt="Logo"
@@ -144,10 +124,10 @@ export default function Home() {
           />
           <h1 className="text-lg font-semibold">Absensi SPPI Buleleng Bali</h1>
           <p className="text-sm text-gray-600">
-            {mounted ? formatDate(time) : "Memuat tanggal..."}
+            {datetimeMounted ? FormatDate(time) : "Memuat tanggal..."}
           </p>
           <p className="text-2xl font-mono mt-1">
-            {mounted ? formatTime(time) : "--:--:--"}
+            {datetimeMounted ? FormatTime(time) : "--:--:--"}
           </p>
         </div>
 
@@ -206,7 +186,13 @@ export default function Home() {
                       target="_blank"
                       href={`https://maps.google.com/maps?ll&q=${latitude},${longitude}`}
                     >
-                      {latitude}, {longitude}
+                      {sppgLocation ? (
+                        <span className="font-medium text-blue-500">
+                          {sppgLocation.name}
+                        </span>
+                      ) : (
+                        <span className="text-red-600">Diluar area SPPG</span>
+                      )}
                     </a>
                   </span>
                 ) : (
@@ -248,7 +234,7 @@ export default function Home() {
             <button
               id="buttonIn"
               disabled={!isFormValid || loadingIn || loadingOut}
-              onClick={() => handleSubmit("masuk")}
+              onClick={() => handleSubmitAbsent("masuk")}
               className={`flex-1 py-2 rounded-lg text-white ${
                 !isFormValid || loadingIn || loadingOut
                   ? "bg-gray-300 cursor-not-allowed"
@@ -261,7 +247,7 @@ export default function Home() {
             <button
               id="buttonOut"
               disabled={!isFormValid || loadingIn || loadingOut}
-              onClick={() => handleSubmit("pulang")}
+              onClick={() => handleSubmitAbsent("pulang")}
               className={`flex-1 py-2 rounded-lg text-white ${
                 !isFormValid || loadingIn || loadingOut
                   ? "bg-gray-300 cursor-not-allowed"
