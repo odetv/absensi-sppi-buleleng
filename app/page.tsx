@@ -7,16 +7,18 @@ import LOGO_SPPI from "../public/logo-sppi.png";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
-  const [nama, setNama] = useState("");
-  const [jabatan, setJabatan] = useState("");
-  const [kegiatan, setKegiatan] = useState("");
+  const [name, setName] = useState("");
+  const [position, setPosition] = useState("");
+  const [description, setDescription] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
-  const [waktu, setWaktu] = useState(new Date());
+  const [time, setTime] = useState(new Date());
   const [clockMismatch, setClockMismatch] = useState(false);
+  const [loadingIn, setLoadingIn] = useState(false);
+  const [loadingOut, setLoadingOut] = useState(false);
 
   const isFormValid =
-    nama && jabatan && kegiatan && latitude && longitude && !clockMismatch;
+    name && position && description && latitude && longitude && !clockMismatch;
 
   useEffect(() => {
     setMounted(true);
@@ -28,29 +30,23 @@ export default function Home() {
         const res = await fetch(`/api/server-time?t=${Date.now()}`, {
           cache: "no-store",
         });
-
         const data = await res.json();
-
         const serverTime = data.millis;
-
         const localTime = new Date();
         const offset = localTime.getTimezoneOffset(); // -480 = WITA
         const clientTime = localTime.getTime() - offset * 60 * 1000;
-
         const diffMinutes = Math.abs(serverTime - clientTime) / 1000 / 60;
-
         setClockMismatch(diffMinutes > 1);
       } catch (err) {
         console.error("Gagal mengambil waktu server", err);
       }
     };
-
-    const interval = setInterval(checkClientTime, 2000); // ✅ realtime update
+    const interval = setInterval(checkClientTime, 2000);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => setWaktu(new Date()), 1000);
+    const interval = setInterval(() => setTime(new Date()), 1000);
     navigator.geolocation.getCurrentPosition((pos) => {
       setLatitude(pos.coords.latitude.toFixed(6));
       setLongitude(pos.coords.longitude.toFixed(6));
@@ -58,7 +54,7 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  const formatTanggal = (date: Date) => {
+  const formatDate = (date: Date) => {
     return date.toLocaleDateString("id-ID", {
       weekday: "long",
       year: "numeric",
@@ -68,7 +64,7 @@ export default function Home() {
     });
   };
 
-  const formatJam = (date: Date) => {
+  const formatTime = (date: Date) => {
     return date
       .toLocaleTimeString("id-ID", {
         hour: "2-digit",
@@ -80,29 +76,28 @@ export default function Home() {
       .replaceAll(".", ":");
   };
 
-  const handleSubmit = async (jenis: "masuk" | "pulang") => {
+  const handleSubmit = async (typeAbsent: "masuk" | "pulang") => {
     if (!isFormValid) return;
-
+    if (typeAbsent === "masuk") setLoadingIn(true);
+    if (typeAbsent === "pulang") setLoadingOut(true);
     const now = new Date();
-    const tanggal = now.toLocaleDateString("id-ID");
-    const waktu = now.toTimeString().split(" ")[0];
-    const hari = now.toLocaleDateString("id-ID", { weekday: "long" });
-
+    const date = now.toLocaleDateString("id-ID");
+    const time = now.toTimeString().split(" ")[0];
+    const day = now.toLocaleDateString("id-ID", { weekday: "long" });
     const sheetName = `${now.getMonth() + 1}-${now.getFullYear()}`;
-
     const lokasiUrl = `https://www.google.com/maps/place/${latitude},${longitude}/@${latitude},${longitude},17z`;
 
     const data = {
-      waktu,
-      hari,
-      tanggal,
-      tipe: jenis === "masuk" ? "Absen Masuk" : "Absen Keluar",
-      nama,
-      jabatan,
-      kegiatan,
+      time,
+      day,
+      date,
+      type: typeAbsent === "masuk" ? "Absen Masuk" : "Absen Keluar",
+      name,
+      position,
+      description,
       latitude,
       longitude,
-      lokasi: lokasiUrl,
+      location: lokasiUrl,
       sheetName,
     };
 
@@ -116,28 +111,25 @@ export default function Home() {
       });
 
       if (!res.ok) {
-        // ❌ GAGAL
         alert("❌ Gagal menyimpan absensi. Coba lagi.");
         return;
       }
 
-      // ✅ BERHASIL
-      alert(`Hai ${nama}, absen ${jenis} berhasil disimpan.`);
+      alert(`Hai ${name}, absen ${typeAbsent} berhasil disimpan.`);
+      setName("");
+      setPosition("");
+      setDescription("");
 
-      // Reset form
-      setNama("");
-      setJabatan("");
-      setKegiatan("");
-
-      // Ambil ulang lokasi setelah reset
       navigator.geolocation.getCurrentPosition((pos) => {
         setLatitude(pos.coords.latitude.toFixed(6));
         setLongitude(pos.coords.longitude.toFixed(6));
       });
     } catch (err) {
-      // ❌ ERROR KONEKSI ATAU SERVER
       console.error(err);
       alert("❌ Terjadi kesalahan koneksi. Coba beberapa saat lagi.");
+    } finally {
+      if (typeAbsent === "masuk") setLoadingIn(false);
+      if (typeAbsent === "pulang") setLoadingOut(false);
     }
   };
 
@@ -152,10 +144,10 @@ export default function Home() {
           />
           <h1 className="text-lg font-semibold">Absensi SPPI Buleleng Bali</h1>
           <p className="text-sm text-gray-600">
-            {mounted ? formatTanggal(waktu) : "Memuat tanggal..."}
+            {mounted ? formatDate(time) : "Memuat tanggal..."}
           </p>
           <p className="text-2xl font-mono mt-1">
-            {mounted ? formatJam(waktu) : "--:--:--"}
+            {mounted ? formatTime(time) : "--:--:--"}
           </p>
         </div>
 
@@ -170,8 +162,8 @@ export default function Home() {
 
         <div className="space-y-3">
           <select
-            value={nama}
-            onChange={(e) => setNama(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             className="w-full px-3 py-2 border rounded-lg cursor-pointer"
           >
             <option value="">Pilih Nama</option>
@@ -183,8 +175,8 @@ export default function Home() {
           </select>
 
           <select
-            value={jabatan}
-            onChange={(e) => setJabatan(e.target.value)}
+            value={position}
+            onChange={(e) => setPosition(e.target.value)}
             className="w-full px-3 py-2 border rounded-lg cursor-pointer"
           >
             <option value="">Pilih Jabatan</option>
@@ -197,19 +189,25 @@ export default function Home() {
 
           <textarea
             placeholder={`Uraian Kegiatan\nCth: Magang di SPPG Buleleng Sukasada Pancasari`}
-            value={kegiatan}
-            onChange={(e) => setKegiatan(e.target.value)}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border rounded-lg resize-y placeholder:text-sm"
+            className="w-full px-3 py-2 border rounded-lg resize-y placeholder:text-xs"
           ></textarea>
 
           <div className="text-sm text-gray-600 space-y-2">
             <div className="flex items-center justify-between gap-2">
               <div>
-                Lokasi:{" "}
+                Lokasi Terkini:{" "}
                 {latitude && longitude ? (
                   <span className="font-medium">
-                    {latitude}, {longitude}
+                    <a
+                      className="text-blue-500 font-semibold cursor-pointer hover:text-blue-600"
+                      target="_blank"
+                      href={`https://maps.google.com/maps?ll&q=${latitude},${longitude}`}
+                    >
+                      {latitude}, {longitude}
+                    </a>
                   </span>
                 ) : (
                   <span className="text-red-600">
@@ -248,26 +246,29 @@ export default function Home() {
 
           <div className="flex justify-between gap-4 pt-2">
             <button
-              disabled={!isFormValid}
+              id="buttonIn"
+              disabled={!isFormValid || loadingIn || loadingOut}
               onClick={() => handleSubmit("masuk")}
               className={`flex-1 py-2 rounded-lg text-white ${
-                isFormValid
-                  ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
-                  : "bg-gray-300 cursor-not-allowed"
+                !isFormValid || loadingIn || loadingOut
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
               }`}
             >
-              Absen Masuk
+              {loadingIn ? "Menyimpan..." : "Absen Masuk"}
             </button>
+
             <button
-              disabled={!isFormValid}
+              id="buttonOut"
+              disabled={!isFormValid || loadingIn || loadingOut}
               onClick={() => handleSubmit("pulang")}
               className={`flex-1 py-2 rounded-lg text-white ${
-                isFormValid
-                  ? "bg-blue-500 hover:bg-blue-600 cursor-pointer"
-                  : "bg-gray-300 cursor-not-allowed"
+                !isFormValid || loadingIn || loadingOut
+                  ? "bg-gray-300 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
               }`}
             >
-              Absen Keluar
+              {loadingOut ? "Menyimpan..." : "Absen Keluar"}
             </button>
           </div>
         </div>

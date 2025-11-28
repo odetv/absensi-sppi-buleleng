@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { google } from "googleapis";
 import { NextResponse } from "next/server";
 
@@ -6,16 +7,16 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     const {
-      waktu,
-      hari,
-      tanggal,
-      tipe,
-      nama,
-      jabatan,
-      kegiatan,
+      time,
+      day,
+      date,
+      type,
+      name,
+      position,
+      description,
       latitude,
       longitude,
-      lokasi,
+      location,
       sheetName,
     } = body;
 
@@ -44,16 +45,16 @@ export async function POST(req: Request) {
         requestBody: {
           values: [
             [
-              waktu,
-              hari,
-              tanggal,
-              tipe,
-              nama,
-              jabatan,
-              kegiatan,
+              time,
+              day,
+              date,
+              type,
+              name,
+              position,
+              description,
               latitude,
               longitude,
-              lokasi,
+              location,
             ],
           ],
         },
@@ -164,16 +165,16 @@ export async function POST(req: Request) {
           requestBody: {
             values: [
               [
-                waktu,
-                hari,
-                tanggal,
-                tipe,
-                nama,
-                jabatan,
-                kegiatan,
+                time,
+                day,
+                date,
+                type,
+                name,
+                position,
+                description,
                 latitude,
                 longitude,
-                lokasi,
+                location,
               ],
             ],
           },
