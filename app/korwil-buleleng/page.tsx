@@ -144,7 +144,7 @@ export default function Home() {
           <select
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg cursor-pointer"
+            className="w-full px-3 py-2 border rounded-lg cursor-pointer text-sm"
           >
             <option value="">Pilih Nama</option>
             {LIST_NAME.map((n) => (
@@ -157,7 +157,7 @@ export default function Home() {
           <select
             value={position}
             onChange={(e) => setPosition(e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg cursor-pointer"
+            className="w-full px-3 py-2 border rounded-lg cursor-pointer text-sm"
           >
             <option value="">Pilih Jabatan</option>
             {LIST_POSITION.map((j) => (
@@ -172,54 +172,15 @@ export default function Home() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border rounded-lg resize-y placeholder:text-xs"
+            className="w-full px-3 py-2 border rounded-lg resize-y text-sm placeholder:text-xs"
           ></textarea>
 
           <div className="text-sm text-gray-600 space-y-2">
-            <div className="flex items-center justify-between gap-2">
-              <div>
-                Lokasi:{" "}
-                {latitude && longitude ? (
-                  <span className="font-medium">
-                    <a
-                      className="text-blue-500 font-semibold cursor-pointer hover:text-blue-600"
-                      target="_blank"
-                      href={`https://maps.google.com/maps?ll&q=${latitude},${longitude}`}
-                    >
-                      {sppgLocation ? (
-                        <span className="font-medium text-blue-500">
-                          {sppgLocation.name}
-                        </span>
-                      ) : (
-                        <span className="text-red-600">Diluar area SPPG</span>
-                      )}
-                    </a>
-                  </span>
-                ) : (
-                  <span className="text-red-600">
-                    Tidak dapat menemukan lokasi. Pastikan GPS aktif.
-                  </span>
-                )}
-              </div>
-
-              <button
-                onClick={() => {
-                  navigator.geolocation.getCurrentPosition((pos) => {
-                    setLatitude(pos.coords.latitude.toFixed(6));
-                    setLongitude(pos.coords.longitude.toFixed(6));
-                  });
-                }}
-                className="text-blue-500 font-semibold cursor-pointer hover:text-blue-600"
-              >
-                Perbarui Lokasi
-              </button>
-            </div>
-
             {latitude && longitude && (
               <iframe
                 title="Google Maps"
                 width="100%"
-                height="250"
+                height="200"
                 className="rounded-md border"
                 style={{ border: 0 }}
                 allowFullScreen
@@ -228,6 +189,74 @@ export default function Home() {
                 src={`https://maps.google.com/maps?&q=${latitude},${longitude}&z=17&output=embed`}
               ></iframe>
             )}
+
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-col items-start gap-1 text-xs">
+                <p className="font-semibold">Informasi Lokasi Terkini</p>
+
+                <div>
+                  Dapur:{" "}
+                  {latitude && longitude ? (
+                    <span className="">
+                      <a
+                        className="text-blue-500 cursor-pointer hover:text-blue-600"
+                        target="_blank"
+                        href={`https://maps.google.com/maps?ll&q=${latitude},${longitude}`}
+                      >
+                        {sppgLocation ? (
+                          <span className="text-blue-500">
+                            {sppgLocation.name}
+                          </span>
+                        ) : (
+                          <span className="text-red-600">Diluar area SPPG</span>
+                        )}
+                      </a>
+                    </span>
+                  ) : (
+                    <span className="text-red-600">
+                      Tidak dapat menemukan lokasi SPPG.
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  Koordinat:{" "}
+                  {latitude && longitude ? (
+                    <span className="">
+                      <a
+                        className="text-blue-500 cursor-pointer hover:text-blue-600"
+                        target="_blank"
+                        href={`https://maps.google.com/maps?ll&q=${latitude},${longitude}`}
+                      >
+                        {sppgLocation ? (
+                          <span className=" text-blue-500">
+                            {sppgLocation.lat}, {sppgLocation.lon}
+                          </span>
+                        ) : (
+                          <span className="text-red-600">Diluar area SPPG</span>
+                        )}
+                      </a>
+                    </span>
+                  ) : (
+                    <span className="text-red-600">
+                      Tidak dapat menemukan titik lokasi.
+                    </span>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => {
+                    navigator.geolocation.getCurrentPosition((pos) => {
+                      setLatitude(pos.coords.latitude.toFixed(6));
+                      setLongitude(pos.coords.longitude.toFixed(6));
+                    });
+                  }}
+                  className="text-white font-semibold text-center cursor-pointer px-3 py-2 rounded-lg bg-green-500 hover:bg-green-600 transition-colors"
+                >
+                  Perbarui Lokasi
+                </button>
+              </div>
+            </div>
           </div>
 
           <div className="flex justify-between gap-4 pt-2">
@@ -235,7 +264,7 @@ export default function Home() {
               id="buttonIn"
               disabled={!isFormValid || loadingIn || loadingOut}
               onClick={() => handleSubmitAbsent("masuk")}
-              className={`flex-1 py-2 rounded-lg text-white ${
+              className={`flex-1 py-3 rounded-lg text-white font-semibold transition-colors uppercase ${
                 !isFormValid || loadingIn || loadingOut
                   ? "bg-gray-300 cursor-not-allowed"
                   : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
@@ -248,7 +277,7 @@ export default function Home() {
               id="buttonOut"
               disabled={!isFormValid || loadingIn || loadingOut}
               onClick={() => handleSubmitAbsent("pulang")}
-              className={`flex-1 py-2 rounded-lg text-white ${
+              className={`flex-1 py-3 rounded-lg text-white font-semibold transition-colors uppercase ${
                 !isFormValid || loadingIn || loadingOut
                   ? "bg-gray-300 cursor-not-allowed"
                   : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
