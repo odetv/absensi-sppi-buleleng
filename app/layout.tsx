@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Absensi SPPI Buleleng Bali",
-  description: "Absensi SPPI Buleleng Bali",
+  description: "Daftar Absensi Harian SPPI BGN",
 };
 
 export default function RootLayout({
