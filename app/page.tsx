@@ -198,7 +198,7 @@ export default function Home() {
           </select>
 
           <textarea
-            placeholder={`Uraian Kegiatan\nCth: Magang di SPPG Buleleng`}
+            placeholder={`Uraian Kegiatan\nCth: Magang di SPPG Buleleng Sukasada Pancasari`}
             value={kegiatan}
             onChange={(e) => setKegiatan(e.target.value)}
             rows={3}
