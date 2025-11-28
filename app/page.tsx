@@ -80,21 +80,65 @@ export default function Home() {
       .replaceAll(".", ":");
   };
 
-  const handleSubmit = (jenis: "masuk" | "pulang") => {
+  const handleSubmit = async (jenis: "masuk" | "pulang") => {
     if (!isFormValid) return;
 
-    alert(`Hai ${nama}, absen ${jenis} berhasil dilakukan.`);
+    const now = new Date();
+    const tanggal = now.toLocaleDateString("id-ID");
+    const waktu = now.toTimeString().split(" ")[0];
+    const hari = now.toLocaleDateString("id-ID", { weekday: "long" });
 
-    setNama("");
-    setJabatan("");
-    setKegiatan("");
-    setLatitude("");
-    setLongitude("");
+    const sheetName = `${now.getMonth() + 1}-${now.getFullYear()}`;
 
-    navigator.geolocation.getCurrentPosition((pos) => {
-      setLatitude(pos.coords.latitude.toFixed(6));
-      setLongitude(pos.coords.longitude.toFixed(6));
-    });
+    const lokasiUrl = `https://www.google.com/maps/place/${latitude},${longitude}/@${latitude},${longitude},17z`;
+
+    const data = {
+      waktu,
+      hari,
+      tanggal,
+      tipe: jenis === "masuk" ? "Absen Masuk" : "Absen Keluar",
+      nama,
+      jabatan,
+      kegiatan,
+      latitude,
+      longitude,
+      lokasi: lokasiUrl,
+      sheetName,
+    };
+
+    try {
+      const res = await fetch("/api/absent", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        // ❌ GAGAL
+        alert("❌ Gagal menyimpan absensi. Coba lagi.");
+        return;
+      }
+
+      // ✅ BERHASIL
+      alert(`Hai ${nama}, absen ${jenis} berhasil disimpan.`);
+
+      // Reset form
+      setNama("");
+      setJabatan("");
+      setKegiatan("");
+
+      // Ambil ulang lokasi setelah reset
+      navigator.geolocation.getCurrentPosition((pos) => {
+        setLatitude(pos.coords.latitude.toFixed(6));
+        setLongitude(pos.coords.longitude.toFixed(6));
+      });
+    } catch (err) {
+      // ❌ ERROR KONEKSI ATAU SERVER
+      console.error(err);
+      alert("❌ Terjadi kesalahan koneksi. Coba beberapa saat lagi.");
+    }
   };
 
   return (
@@ -119,7 +163,7 @@ export default function Home() {
 
         {clockMismatch && (
           <div className="bg-red-100 text-red-700 p-3 rounded-md text-sm text-center mb-3">
-            ⚠️ Waktu perangkat Anda tidak cocok dengan waktu server (WITA).
+            ⚠️ Waktu terdeteksi tidak cocok.
             <br />
             Harap sesuaikan tanggal dan jam perangkat Anda untuk melanjutkan
             absensi.
@@ -154,11 +198,11 @@ export default function Home() {
           </select>
 
           <textarea
-            placeholder="Uraian Kegiatan"
+            placeholder={`Uraian Kegiatan\nCth: Magang di SPPG Buleleng`}
             value={kegiatan}
             onChange={(e) => setKegiatan(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2 border rounded-lg resize-y"
+            className="w-full px-3 py-2 border rounded-lg resize-y placeholder:text-sm"
           ></textarea>
 
           <div className="text-sm text-gray-600 space-y-2">
@@ -183,7 +227,7 @@ export default function Home() {
                     setLongitude(pos.coords.longitude.toFixed(6));
                   });
                 }}
-                className="text-blue-500 font-semibold hover:underline"
+                className="text-blue-500 font-semibold cursor-pointer hover:text-blue-600"
               >
                 Perbarui Lokasi
               </button>
@@ -191,7 +235,7 @@ export default function Home() {
 
             {latitude && longitude && (
               <iframe
-                title="Google Maps Interactive"
+                title="Google Maps"
                 width="100%"
                 height="250"
                 className="rounded-md border"
@@ -225,7 +269,7 @@ export default function Home() {
                   : "bg-gray-300 cursor-not-allowed"
               }`}
             >
-              Absen Pulang
+              Absen Keluar
             </button>
           </div>
         </div>
