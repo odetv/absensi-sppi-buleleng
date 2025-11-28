@@ -150,9 +150,7 @@ export default function Home() {
             alt="Logo"
             className="mx-auto mb-4 w-24 h-auto"
           />
-          <h1 className="text-lg font-semibold">
-            Absensi Harian SPPI Buleleng Bali
-          </h1>
+          <h1 className="text-lg font-semibold">Absensi SPPI Buleleng Bali</h1>
           <p className="text-sm text-gray-600">
             {mounted ? formatTanggal(waktu) : "Memuat tanggal..."}
           </p>

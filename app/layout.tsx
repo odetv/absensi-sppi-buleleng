@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Absensi Harian SPPI Buleleng Bali",
-  description: "Absensi Harian SPPI Buleleng Bali",
+  title: "Absensi SPPI Buleleng Bali",
+  description: "Absensi SPPI Buleleng Bali",
 };
 
 export default function RootLayout({
