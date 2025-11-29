@@ -1,4 +1,5 @@
 export const LIST_NAME = [
+  "Rusdianto",
   "Made Nita Cyntiani Ratnaningsih",
   "Made Widi Aryani",
   "Komang Yudi Arisandhi",
