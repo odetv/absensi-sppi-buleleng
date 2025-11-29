@@ -1,8 +1,10 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Absensi SPPI BGN
 
-## Getting Started
+Web absensi SPPI BGN dibangun guna mempermudah dalam melakukan absensi diberbagai portal. Menggunakan NextJS sebagai framework dalam membangun web ini agar dapat menciptakan pengalaman pengguna yang lebih baik dan optimal.
 
-First, run the development server:
+## 1. Konfigurasi Pengembangan
+
+Pertama, pada saat akan melakukan pengembangan dapat menggunakan cara berikut:
 
 ```bash
 npm run dev
@@ -14,23 +16,39 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka [http://localhost:3000](http://localhost:3000) pada browser untuk melihat preview pada saat pengembangan
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 2. Konfigurasi Database
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Web ini menggunakan Google Spreadsheets sebagai database dalam menyimpan data absensi. Berikut konfigurasi yang perlu dilakukan.
 
-## Learn More
+### Konfigurasi Console Cloud Google:
 
-To learn more about Next.js, take a look at the following resources:
+- Akses http://console.cloud.google.com/
+- Buka menu APIs & Services -> Enabled API & Services
+- Buka Library dan Enabled Google Sheets API
+- Buka Credentials -> Manage service accounts
+- Pilih Create service account dan lengkapi datanya
+- Buka Action -> Manage keys
+- Pilih Add key -> Create new key -> JSON
+- Kredensial akan terdownload otomatis dalam bentuk JSON
+- Simpan dan amankan isi dari variable client_email dan private_key yang akan digunakan sebagai environment variabel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Konfigurasi Google Spreadsheets:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Akses https://docs.google.com/spreadsheets
+- Buat spreadsheet baru
+- Pilih Bagikan dan isi email sesuai dengan client_email dan buat aksesnya editor
+- Dapatkan ID spreadsheet dari url spreadsheet yang telah dibuat, contoh https://docs.google.com/spreadsheets/d/xxxxxxxxxxxx/edit, variable xxxxxxxxxxxx adalah ID dari spreadsheet tersebut
+- Simpan dan amankan ID spreadsheet yang akan digunakan sebagai environment variabel
 
-## Deploy on Vercel
+## 3. Environment Variabel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+GOOGLE_CLIENT_EMAIL=""
+GOOGLE_PRIVATE_KEY=""
+SPREADSHEET_ID=""
+AUTH_USERNAME=""
+AUTH_PASSWORD=""
+JWT_SECRET=""
+```
