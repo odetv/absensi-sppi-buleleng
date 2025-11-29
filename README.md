@@ -42,7 +42,13 @@ Web ini menggunakan Google Spreadsheets sebagai database dalam menyimpan data ab
 - Dapatkan ID spreadsheet dari url spreadsheet yang telah dibuat, contoh https://docs.google.com/spreadsheets/d/xxxxxxxxxxxx/edit, variable xxxxxxxxxxxx adalah ID dari spreadsheet tersebut
 - Simpan dan amankan ID spreadsheet yang akan digunakan sebagai environment variabel
 
-## 3. Environment Variabel
+## 3. Marker Geolocation Google My Maps
+
+- Akses https://mymaps.google.com
+- Import data tagging lokasi (name, lat, lon)
+- Bagikan dan sematkan iframe
+
+## 4. Environment Variabel
 
 ```bash
 GOOGLE_CLIENT_EMAIL=""
