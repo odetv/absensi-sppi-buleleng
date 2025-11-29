@@ -16,24 +16,27 @@ export default function AuthPage() {
 
   const isFormValid = isValidEmail(username) && password.length > 0;
   const handleLogin = async () => {
-    setLoadingLogin(true);
     if (!isFormValid) return;
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ username, password }),
-      headers: { "Content-Type": "application/json" },
-    });
+    setLoadingLogin(true); // Mulai loading
 
-    if (res.ok) {
-      router.push("/");
-    } else {
-      try {
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.ok) {
+        router.push("/");
+      } else {
         const data = await res.json();
-        setErrorMsg(data.message || "Ada masalah dengan proses login.");
-      } catch {
-        setErrorMsg("Ada masalah dengan proses login.");
+        setErrorMsg(data.message || "Login gagal");
       }
+    } catch (err) {
+      setErrorMsg("Terjadi kesalahan saat login");
+    } finally {
+      setLoadingLogin(false); // Apapun hasilnya, loading harus dihentikan
     }
   };
 
@@ -99,14 +102,43 @@ export default function AuthPage() {
         <button
           type="submit"
           disabled={!isFormValid || loadingLogin}
-          className={`w-full py-2 rounded-lg cursor-pointer text-white mt-4 transition-colors ${
-            !isFormValid || loadingLogin
-              ? "bg-gray-400 cursor-not-allowed touch-none"
-              : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800"
-          }`}
+          className={`w-full py-2 rounded-lg mt-4 transition-colors text-white flex items-center justify-center gap-2
+    ${
+      !isFormValid || loadingLogin
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800"
+    }
+  `}
         >
-          {loadingLogin ? "Proses Masuk..." : "Masuk"}
+          {loadingLogin ? (
+            <>
+              <svg
+                className="animate-spin h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                />
+              </svg>
+              Proses Masuk
+            </>
+          ) : (
+            "Masuk"
+          )}
         </button>
+
         <Footer />
       </form>
     </div>
