@@ -8,7 +8,6 @@ import { TypeSPPGLocation } from "../../lib/sppg_location";
 import { FormatDate, FormatTime } from "../../components/DatetimeFormat";
 import { MatchingLocation } from "../../components/ValidationLocation";
 import { MatchingDatetime } from "../../components/ValidationDatetime";
-import Head from "next/head";
 
 export default function Home() {
   const [datetimeMounted, setDatetimeMounted] = useState(false);

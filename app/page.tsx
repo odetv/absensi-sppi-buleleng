@@ -1,8 +1,7 @@
-/* eslint-disable @next/next/no-img-element */
-"use client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LogoutButton from "@/components/AuthButton";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -16,27 +15,27 @@ export default function Home() {
           <LogoutButton />
         </div>
         <div className="flex flex-row justify-center items-center gap-2">
-          <a
+          <Link
             className="px-6 py-3 bg-blue-500 rounded-lg text-white font-semibold text-center hover:bg-blue-600 transition-colors"
             href="bgn-pusat"
             rel="noopener noreferrer"
           >
             BGN Pusat
-          </a>
-          <a
+          </Link>
+          <Link
             className="px-6 py-3 bg-blue-500 rounded-lg text-white font-semibold text-center hover:bg-blue-600 transition-colors"
             href="kppg-denpasar"
             rel="noopener noreferrer"
           >
             KPPG Denpasar
-          </a>
-          <a
+          </Link>
+          <Link
             className="px-6 py-3 bg-blue-500 rounded-lg text-white font-semibold text-center hover:bg-blue-600 transition-colors"
             href="korwil-buleleng"
             rel="noopener noreferrer"
           >
             Korwil Buleleng
-          </a>
+          </Link>
         </div>
         <Footer />
       </div>
