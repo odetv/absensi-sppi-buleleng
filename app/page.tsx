@@ -20,7 +20,7 @@ export default function Home() {
         </div>
         <div className="flex flex-row justify-center items-center gap-2">
           <a
-            className="px-6 py-3 bg-blue-400 rounded-lg text-white font-medium text-center hover:bg-blue-500 transition-colors"
+            className="px-6 py-3 bg-blue-400 rounded-lg text-white font-semibold text-center hover:bg-blue-500 transition-colors"
             href="bgn-pusat"
             target="_blank"
             rel="noopener noreferrer"
@@ -28,7 +28,7 @@ export default function Home() {
             Portal Pusat
           </a>
           <a
-            className="px-6 py-3 bg-blue-400 rounded-lg text-white font-medium text-center hover:bg-blue-500 transition-colors"
+            className="px-6 py-3 bg-blue-400 rounded-lg text-white font-semibold text-center hover:bg-blue-500 transition-colors"
             href="kppg-denpasar"
             target="_blank"
             rel="noopener noreferrer"
@@ -36,9 +36,8 @@ export default function Home() {
             KPPG Denpasar
           </a>
           <a
-            className="px-6 py-3 bg-blue-400 rounded-lg text-white font-medium text-center hover:bg-blue-500 transition-colors"
+            className="px-6 py-3 bg-blue-400 rounded-lg text-white font-semibold text-center hover:bg-blue-500 transition-colors"
             href="korwil-buleleng"
-            target="_blank"
             rel="noopener noreferrer"
           >
             Korwil Buleleng
