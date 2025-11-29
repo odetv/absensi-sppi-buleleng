@@ -2,6 +2,7 @@
 "use client";
 import LOGO_SPPI from "../public/logo-sppi.png";
 import LOGO_BGN from "../public/logo-bgn.png";
+import LogoutButton from "@/components/AuthButton";
 
 export default function Home() {
   return (
@@ -12,11 +13,12 @@ export default function Home() {
           <img src={LOGO_BGN.src} alt="Logo BGN" className="w-48 h-auto" />
         </div>
         <div className="w-full my-6 border-t border-gray-200" />
-        <div className="text-center mb-6">
+        <div className="text-center mb-6 flex flex-col justify-center items-center">
           <h1 className="text-lg font-semibold">Absensi SPPI BGN</h1>
           <p className="text-sm">Daftar Absensi Harian SPPI BGN</p>
+          <LogoutButton />
         </div>
-        <div className="flex flex-row justify-center items-center gap-3">
+        <div className="flex flex-row justify-center items-center gap-2">
           <a
             className="px-6 py-3 bg-blue-400 rounded-lg text-white font-medium text-center hover:bg-blue-500 transition-colors"
             href="bgn-pusat"
