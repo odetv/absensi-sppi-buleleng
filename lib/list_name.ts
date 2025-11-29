@@ -42,7 +42,7 @@ export const LIST_NAME = [
   "Nuridin",
   "Luh Esa Suardani",
   "I Komang Ari Rediasa",
-  "Putu Loji Putra Dermawan Ginantara.",
+  "Putu Loji Putra Dermawan Ginantara",
   "I Made Hendra Dwiguna Pawitra",
   "I Putu Yudisthira Putra Narmada",
   "Wiranata Negara",
