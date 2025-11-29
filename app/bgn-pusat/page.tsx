@@ -1,5 +1,10 @@
-import { redirect } from "next/navigation";
+import RedirectPreview from "@/components/RedirectPreview";
 
-export default function PusatRedirectPage() {
-  redirect("https://portal.bgn.go.id");
+export default function BGNPusatRedirectPage() {
+  return (
+    <RedirectPreview
+      url="https://portal.bgn.go.id"
+      message="Mengalihkan ke Portal BGN Pusat..."
+    />
+  );
 }

@@ -1,12 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
-import LOGO_SPPI from "../../public/logo-sppi.png";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { LIST_NAME } from "../../lib/list_name";
 import { LIST_POSITION } from "../../lib/list_position";
 import { TypeSPPGLocation } from "../../lib/sppg_location";
 import { FormatDate, FormatTime } from "../../components/DatetimeFormat";
 import { MatchingLocation } from "../../components/ValidationLocation";
 import { MatchingDatetime } from "../../components/ValidationDatetime";
+import Head from "next/head";
 
 export default function Home() {
   const [datetimeMounted, setDatetimeMounted] = useState(false);
@@ -103,8 +105,7 @@ export default function Home() {
         setLatitude(pos.coords.latitude.toFixed(6));
         setLongitude(pos.coords.longitude.toFixed(6));
       });
-    } catch (err) {
-      console.error(err);
+    } catch {
       alert("❌ Terjadi kesalahan koneksi. Coba beberapa saat lagi.");
     } finally {
       if (type === "masuk") setLoadingIn(false);
@@ -115,13 +116,9 @@ export default function Home() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
+        <Header />
         <div className="mb-4 text-center">
-          {/* eslint-disable @next/next/no-img-element */}
-          <img
-            src={LOGO_SPPI.src}
-            alt="Logo"
-            className="mx-auto mb-4 w-24 h-auto"
-          />
+          <div className="w-full my-6 border-t border-gray-200" />
           <h1 className="text-lg font-semibold">Absensi SPPI Buleleng Bali</h1>
           <p className="text-sm text-gray-600">
             {datetimeMounted ? FormatDate(time) : "Memuat tanggal..."}
@@ -287,6 +284,8 @@ export default function Home() {
             </button>
           </div>
         </div>
+
+        <Footer />
       </div>
     </main>
   );

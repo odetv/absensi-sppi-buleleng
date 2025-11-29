@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import LOGO_SPPI from "@/public/logo-sppi.png";
-import LOGO_BGN from "@/public/logo-bgn.png";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -13,9 +13,11 @@ export default function AuthPage() {
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loadingLogin, setLoadingLogin] = useState(false);
 
   const isFormValid = isValidEmail(username) && password.length > 0;
   const handleLogin = async () => {
+    setLoadingLogin(true);
     if (!isFormValid) return;
 
     const res = await fetch("/api/auth/login", {
@@ -29,14 +31,15 @@ export default function AuthPage() {
     } else {
       try {
         const data = await res.json();
-        setErrorMsg(data.message || "Login failed");
+        setErrorMsg(data.message || "Ada masalah dengan proses login.");
       } catch {
-        setErrorMsg("Login failed");
+        setErrorMsg("Ada masalah dengan proses login.");
       }
     }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    setLoadingLogin(true);
     e.preventDefault();
     await handleLogin();
   };
@@ -47,10 +50,7 @@ export default function AuthPage() {
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-xl shadow-md w-full max-w-sm"
       >
-        <div className="text-center flex flex-row items-center gap-4 justify-center">
-          <img src={LOGO_SPPI.src} alt="Logo SPPI" className="w-20 h-auto" />
-          <img src={LOGO_BGN.src} alt="Logo BGN" className="w-48 h-auto" />
-        </div>
+        <Header />
         <div className="w-full my-6 border-t border-gray-200" />
         <div className="text-center mb-6 flex flex-col justify-center items-center">
           <h1 className="text-lg font-semibold">Absensi SPPI BGN</h1>
@@ -99,19 +99,16 @@ export default function AuthPage() {
 
         <button
           type="submit"
-          disabled={!isFormValid}
-          className={`w-full py-2 rounded-lg text-white mt-4 transition ${
-            isFormValid
-              ? "bg-blue-600 hover:bg-blue-700 active:bg-blue-800"
-              : "bg-gray-400 cursor-not-allowed touch-none"
+          disabled={!isFormValid || loadingLogin}
+          className={`w-full py-2 rounded-lg cursor-pointer text-white mt-4 transition-colors ${
+            !isFormValid || loadingLogin
+              ? "bg-gray-400 cursor-not-allowed touch-none"
+              : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800"
           }`}
         >
-          MASUK
+          {loadingLogin ? "Proses Masuk..." : "Masuk"}
         </button>
-        <div className="w-full my-6 pt-3 border-b border-gray-200" />
-        <p className="text-xs text-center text-gray-500">
-          © {new Date().getFullYear()} - Tim Data SPPI Buleleng Bali
-        </p>
+        <Footer />
       </form>
     </div>
   );

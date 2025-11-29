@@ -20,9 +20,7 @@ export function MatchingDatetime(): boolean {
         const clientTime = localTime.getTime() - offset * 60 * 1000;
         const diffMinutes = Math.abs(serverTime - clientTime) / 1000 / 60;
         setClockMismatch(diffMinutes > 1);
-      } catch (err) {
-        console.error("Gagal mengambil waktu server", err);
-      }
+      } catch {}
     };
     checkClientTime();
 

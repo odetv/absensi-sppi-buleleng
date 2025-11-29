@@ -12,6 +12,7 @@ interface JWTPayload {
 export default function LogoutButton() {
   const router = useRouter();
   const [email, setEmail] = useState<string | null>(null);
+  const [loadingLogout, setLoadingLogout] = useState(false);
 
   useEffect(() => {
     const token = getCookie("session_token");
@@ -39,13 +40,13 @@ export default function LogoutButton() {
       }, 0);
 
       return () => clearTimeout(timeout);
-    } catch (err) {
-      console.error("Token decode error", err);
+    } catch {
       router.push("/auth");
     }
   }, [router]);
 
   const handleLogout = async () => {
+    setLoadingLogout(true);
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/auth");
   };
@@ -55,11 +56,17 @@ export default function LogoutButton() {
   return (
     <div className="flex items-center gap-1 text-[14px]">
       <span className="text-gray-500">{email}</span>
+      <span className="text-gray-500">|</span>
       <button
         onClick={handleLogout}
-        className="font-bold text-red-500 hover:text-red-600 cursor-pointer"
+        disabled={loadingLogout}
+        className={`font-bold cursor-pointer ${
+          loadingLogout
+            ? "text-gray-400 cursor-not-allowed"
+            : "text-red-500 hover:text-red-600"
+        }`}
       >
-        (Logout)
+        {loadingLogout ? "Proses Keluar..." : "Keluar"}
       </button>
     </div>
   );

@@ -210,8 +210,7 @@ export async function POST(req: Request) {
 
       throw err;
     }
-  } catch (err) {
-    console.error("Gagal menulis ke Google Sheets", err);
+  } catch {
     return NextResponse.json(
       { success: false, error: "Gagal menulis ke sheet" },
       { status: 500 }
