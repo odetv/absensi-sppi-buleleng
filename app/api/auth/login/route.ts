@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+  const secret = new TextEncoder().encode(process.env.AUTH_JWT_SECRET);
   const token = await new SignJWT({ email: username })
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime("1h")

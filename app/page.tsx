@@ -39,7 +39,7 @@ export default function Home() {
         </div>
         <iframe
           className="mt-2 rounded-lg"
-          src="https://www.google.com/maps/d/u/0/embed?mid=1loSa0QJm5MZ0QctKbvVr8RkQyc11L6s&ehbc=2E312F&noprof=1"
+          src={`https://www.google.com/maps/d/u/0/embed?mid=${process.env.GOOGLE_MYMAPS_ID}&ehbc=2E312F&noprof=1`}
           width="100%"
           height="340"
         ></iframe>

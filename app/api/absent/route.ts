@@ -30,10 +30,10 @@ export async function POST(req: Request) {
     });
 
     const sheets = google.sheets({ version: "v4", auth });
-    const spreadsheetId = process.env.SPREADSHEET_ID;
+    const spreadsheetId = process.env.GOOGLE_SPREADSHEETS_ID;
     if (!spreadsheetId) {
       throw new Error(
-        "SPREADSHEET_ID is not defined in environment variables."
+        "GOOGLE_SPREADSHEETS_ID is not defined in environment variables."
       );
     }
 
