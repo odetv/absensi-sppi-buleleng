@@ -53,8 +53,8 @@ Web ini menggunakan Google Spreadsheets sebagai database dalam menyimpan data ab
 ```bash
 GOOGLE_CLIENT_EMAIL=""
 GOOGLE_PRIVATE_KEY=""
-SPREADSHEET_ID=""
+GOOGLE_SPREADSHEETS_ID=""
 AUTH_USERNAME=""
 AUTH_PASSWORD=""
-JWT_SECRET=""
+AUTH_JWT_SECRET=""
 ```
