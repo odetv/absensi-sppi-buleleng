@@ -19,14 +19,14 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const secret = new TextEncoder().encode(process.env.AUTH_JWT_SECRET);
     await jwtVerify(token, secret);
     if (pathname === "/auth") {
       return NextResponse.redirect(new URL("/", request.url));
     }
     return NextResponse.next();
   } catch {
-    // ❗ JWT invalid (misalnya JWT_SECRET berubah)
+    // JWT invalid
     const response = NextResponse.redirect(new URL("/auth", request.url));
     // Hapus cookie invalid
     response.cookies.set({
