@@ -149,4 +149,25 @@ export const SPPG_LOCATIONS = [
     lon: 115.115084,
     radius: radiusInMeters,
   },
+  {
+    id: 21,
+    name: "SPPG Buleleng Buleleng Kaliuntu 2",
+    lat: -8.112705,
+    lon: 115.084157,
+    radius: radiusInMeters,
+  },
+  {
+    id: 22,
+    name: "SPPG Buleleng Tejakula Pacung",
+    lat: -8.100074,
+    lon: 115.279074,
+    radius: radiusInMeters,
+  },
+  {
+    id: 23,
+    name: "SPPG Buleleng Sawan Giri Emas",
+    lat: -8.084605,
+    lon: 115.137332,
+    radius: radiusInMeters,
+  },
 ];
