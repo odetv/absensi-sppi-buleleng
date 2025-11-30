@@ -102,7 +102,7 @@ export default function AuthPage() {
         <button
           type="submit"
           disabled={!isFormValid || loadingLogin}
-          className={`w-full py-2 rounded-lg mt-4 transition-colors text-white flex items-center justify-center gap-2
+          className={`w-full py-2 rounded-lg mt-4 transition-colors cursor-pointer font-semibold text-white flex items-center justify-center gap-2
     ${
       !isFormValid || loadingLogin
         ? "bg-gray-400 cursor-not-allowed"
