@@ -4,22 +4,22 @@ export default function KPPGDenpasar() {
   return (
     <div className="flex flex-col justify-center items-center gap-2 w-full h-screen">
       <h1 className="text-lg font-semibold text-gray-700">
-        Pilihan Absensi di KPPG Denpasar
+        Pilihan Absensi di KPPG Denpasar sebagai KaSPPG
       </h1>
       <div className="flex flex-row justify-center items-center gap-2 w-full">
         <Link
           className="px-5 py-2 bg-blue-500 rounded-lg text-white font-semibold text-center hover:bg-blue-600 transition-colors"
-          href="kppg-denpasar/kasppg"
+          href="kasppg/pagi"
           rel="noopener noreferrer"
         >
-          KaSPPG
+          KaSPPG Pagi
         </Link>
         <Link
           className="px-5 py-2 bg-blue-500 rounded-lg text-white font-semibold text-center hover:bg-blue-600 transition-colors"
-          href="kppg-denpasar/magang"
+          href="kasppg/sore"
           rel="noopener noreferrer"
         >
-          Magang
+          KaSPPG Sore
         </Link>
       </div>
     </div>
