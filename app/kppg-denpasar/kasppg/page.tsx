@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function KPPGDenpasar() {
   return (
     <div className="flex flex-col justify-center items-center gap-2 w-full h-screen">
-      <h1 className="text-lg font-semibold text-gray-700">
+      <h1 className="text-sm text-center font-semibold text-gray-700">
         Pilihan Absensi di KPPG Denpasar sebagai KaSPPG
       </h1>
       <div className="flex flex-row justify-center items-center gap-2 w-full">
