@@ -1,4 +1,4 @@
-const radiusInMeters = 20;
+const radiusInMeters = 30;
 
 export type TypeSPPGLocation = {
   id: number;
