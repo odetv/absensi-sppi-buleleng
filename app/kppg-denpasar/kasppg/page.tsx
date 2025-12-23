@@ -4,7 +4,7 @@ export default function KPPGDenpasar() {
   return (
     <div className="flex flex-col justify-center items-center gap-2 w-full h-screen">
       <h1 className="text-sm text-center font-semibold text-gray-700">
-        Pilihan Absensi di KPPG Denpasar sebagai KaSPPG
+        Pilihan Absensi di KPPG Denpasar untuk KaSPPG
       </h1>
       <div className="flex flex-row justify-center items-center gap-2 w-full">
         <Link

@@ -10,7 +10,7 @@ export default function RedirectPreview({
   url,
   message,
 }: RedirectPreviewProps) {
-  const delay = 3000;
+  const delay = 0;
   const [counter, setCounter] = useState(delay / 1000);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function RedirectPreview({
 
   return (
     <div className="flex flex-col items-center justify-center h-screen gap-2">
-      <div className="animate-pulse text-lg font-semibold text-gray-700">
+      <div className="animate-pulse text-sm font-semibold text-gray-700">
         {message}
       </div>
       <div className="text-sm text-gray-500">
