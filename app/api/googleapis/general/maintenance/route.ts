@@ -17,6 +17,6 @@ export async function GET() {
     });
   } catch (err) {
     console.error("MAINTENANCE API ERROR", err);
-    return NextResponse.json({ maintenance: true });
+    return NextResponse.json({ maintenance: false });
   }
 }
