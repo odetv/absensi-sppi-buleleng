@@ -10,7 +10,7 @@ export default function RedirectPreview({
   url,
   message,
 }: RedirectPreviewProps) {
-  const delay = 0;
+  const delay = 1000;
   const [counter, setCounter] = useState(delay / 1000);
 
   useEffect(() => {

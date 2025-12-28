@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { google } from "googleapis";
+import { getSheetsClient } from "@/lib/auth/googleAuth";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
     const {
       time,
       day,
@@ -21,19 +20,11 @@ export async function POST(req: Request) {
       sheetName,
     } = body;
 
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: process.env.GOOGLE_CLIENT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-      },
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-    });
-
-    const sheets = google.sheets({ version: "v4", auth });
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEETS_ID;
+    const sheets = getSheetsClient();
+    const spreadsheetId = process.env.GOOGLE_SPREADSHEETS_PRESENT_ID;
     if (!spreadsheetId) {
       throw new Error(
-        "GOOGLE_SPREADSHEETS_ID is not defined in environment variables."
+        "GOOGLE_SPREADSHEETS_PRESENT_ID is not defined in environment variables."
       );
     }
 

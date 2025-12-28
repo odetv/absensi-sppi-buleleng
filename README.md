@@ -34,7 +34,15 @@ Web ini menggunakan Google Spreadsheets sebagai database dalam menyimpan data ab
 - Kredensial akan terdownload otomatis dalam bentuk JSON
 - Simpan dan amankan isi dari variable client_email dan private_key yang akan digunakan sebagai environment variabel
 
-### Konfigurasi Google Spreadsheets:
+### Konfigurasi Google Spreadsheets untuk Database Absen:
+
+- Akses https://docs.google.com/spreadsheets
+- Buat spreadsheet baru
+- Pilih Bagikan dan isi email sesuai dengan client_email dan buat aksesnya editor
+- Dapatkan ID spreadsheet dari url spreadsheet yang telah dibuat, contoh https://docs.google.com/spreadsheets/d/xxxxxxxxxxxx/edit, variable xxxxxxxxxxxx adalah ID dari spreadsheet tersebut
+- Simpan dan amankan ID spreadsheet yang akan digunakan sebagai environment variabel
+
+### Konfigurasi Google Spreadsheets untuk Pengaturan Absen:
 
 - Akses https://docs.google.com/spreadsheets
 - Buat spreadsheet baru
@@ -53,8 +61,8 @@ Web ini menggunakan Google Spreadsheets sebagai database dalam menyimpan data ab
 ```bash
 GOOGLE_CLIENT_EMAIL=""
 GOOGLE_PRIVATE_KEY=""
-GOOGLE_SPREADSHEETS_ID=""
-AUTH_USERNAME=""
-AUTH_PASSWORD=""
+GOOGLE_SPREADSHEETS_PRESENT_ID=""
+GOOGLE_SPREADSHEETS_SETTING_ID=""
+GOOGLE_MYMAPS_ID=""
 AUTH_JWT_SECRET=""
 ```

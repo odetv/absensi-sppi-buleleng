@@ -1,8 +1,8 @@
 "use client";
-import { useState } from "react";
-import { LIST_NAME } from "../../lib/list_name";
-import { LIST_POSITION } from "../../lib/list_position";
-import { SPPG_LOCATIONS, TypeSPPGLocation } from "../../lib/sppg_location";
+import { useEffect, useState } from "react";
+import { getUsers, TypeUser } from "../../lib/datasources/listUser";
+import { getPositions, TypePosition } from "../../lib/datasources/listPosition";
+import { getLocations, TypeLocation } from "../../lib/datasources/listLocation";
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -10,14 +10,85 @@ export default function Home() {
   const [description, setDescription] = useState("");
   const [timeInput, setTimeInput] = useState("");
   const [dateInput, setDateInput] = useState("");
-  const [sppgLocation, setSppgLocation] = useState<TypeSPPGLocation | null>(
-    null
-  );
+  const [sppgLocation, setSppgLocation] = useState<TypeLocation | null>(null);
   const [loadingIn, setLoadingIn] = useState(false);
   const [loadingOut, setLoadingOut] = useState(false);
 
+  const [locations, setLocations] = useState<TypeLocation[]>([]);
+  const [loadingLocation, setLoadingLocations] = useState(true);
+
+  const [positions, setPositions] = useState<TypePosition[]>([]);
+  const [filteredPositions, setFilteredPositions] = useState<TypePosition[]>(
+    []
+  );
+  const [loadingPositions, setLoadingPositions] = useState(true);
+
+  const [users, setUsers] = useState<TypeUser[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+
   const isFormValid =
     name && position && description && timeInput && dateInput && sppgLocation;
+
+  useEffect(() => {
+    if (!name) {
+      setFilteredPositions([]);
+      setPosition("");
+      return;
+    }
+    const user = users.find((u) => u.name === name);
+    if (!user) return;
+    const matched = positions.filter((p) =>
+      user.positions.includes(p.position)
+    );
+    setFilteredPositions(matched);
+    if (matched.length === 1) {
+      setPosition(matched[0].position);
+    } else {
+      setPosition("");
+    }
+  }, [name, users, positions]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const data = await getUsers();
+        setUsers(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    const fetchPositions = async () => {
+      try {
+        const data = await getPositions();
+        setPositions(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingPositions(false);
+      }
+    };
+    fetchPositions();
+  }, []);
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        const data = await getLocations();
+        setLocations(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingLocations(false);
+      }
+    };
+    fetchLocations();
+  }, []);
 
   const handleSubmitAbsent = async (type: "masuk" | "pulang") => {
     if (!isFormValid) return;
@@ -51,7 +122,7 @@ export default function Home() {
     };
 
     try {
-      const res = await fetch("/api/absent", {
+      const res = await fetch("/api/googleapis/fetch-absent", {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
@@ -60,7 +131,7 @@ export default function Home() {
       });
 
       if (!res.ok) {
-        alert("❌ Gagal menyimpan absensi. Coba lagi.");
+        alert("Gagal menyimpan absensi. Coba lagi.");
         return;
       }
 
@@ -72,7 +143,7 @@ export default function Home() {
       setDateInput("");
       setSppgLocation(null);
     } catch {
-      alert("❌ Terjadi kesalahan koneksi. Coba beberapa saat lagi.");
+      alert("Terjadi kesalahan koneksi. Coba beberapa saat lagi.");
     } finally {
       if (type === "masuk") setLoadingIn(false);
       if (type === "pulang") setLoadingOut(false);
@@ -89,13 +160,20 @@ export default function Home() {
         <div className="space-y-3 mt-6">
           <select
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg text-sm"
+            onChange={(e) => {
+              setName(e.target.value);
+              setPosition("");
+            }}
+            disabled={loadingUsers}
+            className="w-full px-3 py-2 border rounded-lg cursor-pointer text-sm"
           >
-            <option value="">Pilih Nama</option>
-            {LIST_NAME.map((n) => (
-              <option key={n} value={n}>
-                {n}
+            <option value="">
+              {loadingUsers ? "Memuat Nama..." : "Pilih Nama"}
+            </option>
+
+            {users.map((u) => (
+              <option key={u.id} value={u.name}>
+                {u.name}
               </option>
             ))}
           </select>
@@ -103,12 +181,20 @@ export default function Home() {
           <select
             value={position}
             onChange={(e) => setPosition(e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg text-sm"
+            disabled={!name || loadingPositions}
+            className="w-full px-3 py-2 border rounded-lg cursor-pointer text-sm"
           >
-            <option value="">Pilih Jabatan</option>
-            {LIST_POSITION.map((j) => (
-              <option key={j} value={j}>
-                {j}
+            <option value="">
+              {!name
+                ? "Pilih Jabatan"
+                : filteredPositions.length === 0
+                ? "Tidak Memiliki Jabatan (Hubungi Admin)"
+                : "Pilih Jabatan"}
+            </option>
+
+            {filteredPositions.map((p) => (
+              <option key={p.id} value={p.position}>
+                {p.position}
               </option>
             ))}
           </select>
@@ -126,30 +212,33 @@ export default function Home() {
               type="time"
               value={timeInput}
               onChange={(e) => setTimeInput(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg text-sm"
+              className="w-full px-3 py-2 border rounded-lg cursor-pointer text-sm"
             />
 
             <input
               type="date"
               value={dateInput}
               onChange={(e) => setDateInput(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg text-sm"
+              className="w-full px-3 py-2 border rounded-lg cursor-pointer text-sm"
             />
           </div>
 
           <select
-            value={sppgLocation?.name || ""}
+            value={sppgLocation?.id || ""}
             onChange={(e) => {
               const loc =
-                SPPG_LOCATIONS.find((loc) => loc.name === e.target.value) ||
-                null;
+                locations.find((l) => l.id === Number(e.target.value)) || null;
               setSppgLocation(loc);
             }}
-            className="w-full px-3 py-2 border rounded-lg text-sm"
+            disabled={loadingLocation}
+            className="w-full px-3 py-2 border rounded-lg cursor-pointer text-sm"
           >
-            <option value="">Pilih Lokasi SPPG</option>
-            {SPPG_LOCATIONS.map((loc) => (
-              <option key={loc.name} value={loc.name}>
+            <option value="">
+              {loadingLocation ? "Memuat Lokasi SPPG..." : "Pilih Lokasi SPPG"}
+            </option>
+
+            {locations.map((loc) => (
+              <option key={loc.id} value={loc.id}>
                 {loc.name}
               </option>
             ))}

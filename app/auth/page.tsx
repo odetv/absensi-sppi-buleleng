@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -21,7 +22,7 @@ export default function AuthPage() {
     setLoadingLogin(true); // Mulai loading
 
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch("/api/googleapis/auth/login", {
         method: "POST",
         body: JSON.stringify({ username, password }),
         headers: { "Content-Type": "application/json" },

@@ -2,9 +2,9 @@
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { LIST_NAME } from "../../lib/list_name";
-import { LIST_POSITION } from "../../lib/list_position";
-import { TypeSPPGLocation } from "../../lib/sppg_location";
+import { getUsers, TypeUser } from "../../lib/datasources/listUser";
+import { getPositions, TypePosition } from "../../lib/datasources/listPosition";
+import { TypeLocation } from "../../lib/datasources/listLocation";
 import { FormatDate, FormatTime } from "../../components/DatetimeFormat";
 import { MatchingLocation } from "../../components/ValidationLocation";
 import { MatchingDatetime } from "../../components/ValidationDatetime";
@@ -16,13 +16,67 @@ export default function Home() {
   const [description, setDescription] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
-  const [sppgLocation, setSppgLocation] = useState<TypeSPPGLocation | null>(
-    null
-  );
+  const [sppgLocation, setSppgLocation] = useState<TypeLocation | null>(null);
   const [time, setTime] = useState(new Date());
   const [loadingIn, setLoadingIn] = useState(false);
   const [loadingOut, setLoadingOut] = useState(false);
   const clockMismatch = MatchingDatetime();
+
+  const [positions, setPositions] = useState<TypePosition[]>([]);
+  const [filteredPositions, setFilteredPositions] = useState<TypePosition[]>(
+    []
+  );
+  const [loadingPositions, setLoadingPositions] = useState(true);
+
+  const [users, setUsers] = useState<TypeUser[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+
+  useEffect(() => {
+    if (!name) {
+      setFilteredPositions([]);
+      setPosition("");
+      return;
+    }
+    const user = users.find((u) => u.name === name);
+    if (!user) return;
+    const matched = positions.filter((p) =>
+      user.positions.includes(p.position)
+    );
+    setFilteredPositions(matched);
+    if (matched.length === 1) {
+      setPosition(matched[0].position);
+    } else {
+      setPosition("");
+    }
+  }, [name, users, positions]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const data = await getUsers();
+        setUsers(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    const fetchPositions = async () => {
+      try {
+        const data = await getPositions();
+        setPositions(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingPositions(false);
+      }
+    };
+    fetchPositions();
+  }, []);
 
   const isFormValid =
     name &&
@@ -48,11 +102,13 @@ export default function Home() {
 
   useEffect(() => {
     if (latitude && longitude) {
-      const location = MatchingLocation(
-        parseFloat(latitude),
-        parseFloat(longitude)
-      );
-      setSppgLocation(location);
+      (async () => {
+        const location = await MatchingLocation(
+          parseFloat(latitude),
+          parseFloat(longitude)
+        );
+        setSppgLocation(location);
+      })();
     }
   }, [latitude, longitude]);
 
@@ -82,7 +138,7 @@ export default function Home() {
     };
 
     try {
-      const res = await fetch("/api/absent", {
+      const res = await fetch("/api/googleapis/fetch-absent", {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
@@ -91,7 +147,7 @@ export default function Home() {
       });
 
       if (!res.ok) {
-        alert("❌ Gagal menyimpan absensi. Coba lagi.");
+        alert("Gagal menyimpan absensi. Coba lagi.");
         return;
       }
 
@@ -105,7 +161,7 @@ export default function Home() {
         setLongitude(pos.coords.longitude.toFixed(6));
       });
     } catch {
-      alert("❌ Terjadi kesalahan koneksi. Coba beberapa saat lagi.");
+      alert("Terjadi kesalahan koneksi. Coba beberapa saat lagi.");
     } finally {
       if (type === "masuk") setLoadingIn(false);
       if (type === "pulang") setLoadingOut(false);
@@ -139,13 +195,20 @@ export default function Home() {
         <div className="space-y-3">
           <select
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              setPosition("");
+            }}
+            disabled={loadingUsers}
             className="w-full px-3 py-2 border rounded-lg cursor-pointer text-sm"
           >
-            <option value="">Pilih Nama</option>
-            {LIST_NAME.map((n) => (
-              <option key={n} value={n}>
-                {n}
+            <option value="">
+              {loadingUsers ? "Memuat Nama..." : "Pilih Nama"}
+            </option>
+
+            {users.map((u) => (
+              <option key={u.id} value={u.name}>
+                {u.name}
               </option>
             ))}
           </select>
@@ -153,12 +216,20 @@ export default function Home() {
           <select
             value={position}
             onChange={(e) => setPosition(e.target.value)}
+            disabled={!name || loadingPositions}
             className="w-full px-3 py-2 border rounded-lg cursor-pointer text-sm"
           >
-            <option value="">Pilih Jabatan</option>
-            {LIST_POSITION.map((j) => (
-              <option key={j} value={j}>
-                {j}
+            <option value="">
+              {!name
+                ? "Pilih Jabatan"
+                : filteredPositions.length === 0
+                ? "Tidak Memiliki Jabatan"
+                : "Pilih Jabatan"}
+            </option>
+
+            {filteredPositions.map((p) => (
+              <option key={p.id} value={p.position}>
+                {p.position}
               </option>
             ))}
           </select>

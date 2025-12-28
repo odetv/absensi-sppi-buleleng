@@ -1,4 +1,4 @@
-import { TypeSPPGLocation, SPPG_LOCATIONS } from "../lib/sppg_location";
+import { TypeLocation, getLocations } from "@/lib/datasources/listLocation";
 
 export function HaversineDistance(
   lat1: number,
@@ -17,20 +17,19 @@ export function HaversineDistance(
   return R * c;
 }
 
-export function MatchingLocation(
+export async function MatchingLocation(
   lat: number,
   lon: number
-): TypeSPPGLocation | null {
-  let closest = null;
+): Promise<TypeLocation | null> {
+  const locations = await getLocations();
+  let closest: TypeLocation | null = null;
   let minDistance = Infinity;
-
-  for (const location of SPPG_LOCATIONS) {
+  for (const location of locations) {
     const distance = HaversineDistance(lat, lon, location.lat, location.lon);
     if (distance <= location.radius && distance < minDistance) {
       minDistance = distance;
       closest = location;
     }
   }
-
   return closest;
 }
