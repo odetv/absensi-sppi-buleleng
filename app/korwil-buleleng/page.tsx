@@ -8,6 +8,8 @@ import { TypeLocation } from "../../lib/datasources/listLocation";
 import { FormatDate, FormatTime } from "../../components/DatetimeFormat";
 import { MatchingLocation } from "../../components/ValidationLocation";
 import { MatchingDatetime } from "../../components/ValidationDatetime";
+import CheckerAbsentUseSession from "@/components/CheckerAbsentUseSession";
+import type { StatusAbsent } from "@/components/CheckerAbsentUseSession";
 
 export default function Home() {
   const [datetimeMounted, setDatetimeMounted] = useState(false);
@@ -30,6 +32,8 @@ export default function Home() {
 
   const [users, setUsers] = useState<TypeUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
+
+  const [absentStatus, setAbsentStatus] = useState<StatusAbsent | null>(null);
 
   useEffect(() => {
     if (!name) {
@@ -86,6 +90,15 @@ export default function Home() {
     longitude &&
     sppgLocation &&
     !clockMismatch;
+
+  const isButtonInDisabled =
+    !isFormValid || loadingIn || loadingOut || absentStatus?.masuk;
+  const isButtonOutDisabled =
+    !isFormValid ||
+    loadingIn ||
+    loadingOut ||
+    !absentStatus?.masuk ||
+    absentStatus?.keluar;
 
   useEffect(() => {
     setDatetimeMounted(true);
@@ -191,6 +204,8 @@ export default function Home() {
             absensi.
           </div>
         )}
+
+        <CheckerAbsentUseSession onStatusChange={setAbsentStatus} />
 
         <div className="space-y-3">
           <select
@@ -329,28 +344,36 @@ export default function Home() {
           <div className="flex justify-between gap-4 pt-2">
             <button
               id="buttonIn"
-              disabled={!isFormValid || loadingIn || loadingOut}
+              disabled={isButtonInDisabled}
               onClick={() => handleSubmitAbsent("masuk")}
-              className={`flex-1 py-3 rounded-lg text-white font-semibold transition-colors uppercase ${
-                !isFormValid || loadingIn || loadingOut
+              className={`flex-1 py-3 rounded-lg text-white font-semibold uppercase ${
+                isButtonInDisabled
                   ? "bg-gray-300 cursor-not-allowed"
                   : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
               }`}
             >
-              {loadingIn ? "Menyimpan..." : "Absen Masuk"}
+              {absentStatus?.masuk
+                ? "Absen Masuk"
+                : loadingIn
+                ? "Menyimpan..."
+                : "Absen Masuk"}
             </button>
 
             <button
               id="buttonOut"
-              disabled={!isFormValid || loadingIn || loadingOut}
+              disabled={isButtonOutDisabled}
               onClick={() => handleSubmitAbsent("pulang")}
-              className={`flex-1 py-3 rounded-lg text-white font-semibold transition-colors uppercase ${
-                !isFormValid || loadingIn || loadingOut
+              className={`flex-1 py-3 rounded-lg text-white font-semibold uppercase ${
+                isButtonOutDisabled
                   ? "bg-gray-300 cursor-not-allowed"
                   : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
               }`}
             >
-              {loadingOut ? "Menyimpan..." : "Absen Keluar"}
+              {absentStatus?.keluar
+                ? "Absen Keluar"
+                : loadingOut
+                ? "Menyimpan..."
+                : "Absen Keluar"}
             </button>
           </div>
         </div>

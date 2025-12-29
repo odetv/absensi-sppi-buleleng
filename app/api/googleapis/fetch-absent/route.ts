@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getSheetsClient } from "@/lib/auth/googleAuth";
 import { NextResponse } from "next/server";
 
