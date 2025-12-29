@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { getUsers, TypeUser } from "../../lib/datasources/listUser";
 import { getPositions, TypePosition } from "../../lib/datasources/listPosition";
 import { getLocations, TypeLocation } from "../../lib/datasources/listLocation";
+import CheckerAbsentUseSession from "@/components/CheckerAbsentUseSession";
+import type { StatusAbsent } from "@/components/CheckerAbsentUseSession";
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -26,8 +28,19 @@ export default function Home() {
   const [users, setUsers] = useState<TypeUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
 
+  const [absentStatus, setAbsentStatus] = useState<StatusAbsent | null>(null);
+
   const isFormValid =
     name && position && description && timeInput && dateInput && sppgLocation;
+
+  const isButtonInDisabled =
+    !isFormValid || loadingIn || loadingOut || absentStatus?.masuk;
+  const isButtonOutDisabled =
+    !isFormValid ||
+    loadingIn ||
+    loadingOut ||
+    !absentStatus?.masuk ||
+    absentStatus?.keluar;
 
   useEffect(() => {
     if (!name) {
@@ -153,11 +166,13 @@ export default function Home() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
-        <h1 className="text-lg font-semibold text-center">
+        <h1 className="text-lg font-semibold text-center mb-6">
           Absensi SPPI Buleleng Bali
         </h1>
 
-        <div className="space-y-3 mt-6">
+        <CheckerAbsentUseSession onStatusChange={setAbsentStatus} />
+
+        <div className="space-y-3 mt-3">
           <select
             value={name}
             onChange={(e) => {
@@ -259,28 +274,36 @@ export default function Home() {
           <div className="flex justify-between gap-4 pt-2">
             <button
               id="buttonIn"
-              disabled={!isFormValid || loadingIn || loadingOut}
+              disabled={isButtonInDisabled}
               onClick={() => handleSubmitAbsent("masuk")}
-              className={`flex-1 py-3 rounded-lg text-white font-semibold transition-colors uppercase ${
-                !isFormValid || loadingIn || loadingOut
+              className={`flex-1 py-3 rounded-lg text-white font-semibold uppercase ${
+                isButtonInDisabled
                   ? "bg-gray-300 cursor-not-allowed"
                   : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
               }`}
             >
-              {loadingIn ? "Menyimpan..." : "Absen Masuk"}
+              {absentStatus?.masuk
+                ? "Absen Masuk"
+                : loadingIn
+                ? "Menyimpan..."
+                : "Absen Masuk"}
             </button>
 
             <button
               id="buttonOut"
-              disabled={!isFormValid || loadingIn || loadingOut}
+              disabled={isButtonOutDisabled}
               onClick={() => handleSubmitAbsent("pulang")}
-              className={`flex-1 py-3 rounded-lg text-white font-semibold transition-colors uppercase ${
-                !isFormValid || loadingIn || loadingOut
+              className={`flex-1 py-3 rounded-lg text-white font-semibold uppercase ${
+                isButtonOutDisabled
                   ? "bg-gray-300 cursor-not-allowed"
                   : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
               }`}
             >
-              {loadingOut ? "Menyimpan..." : "Absen Keluar"}
+              {absentStatus?.keluar
+                ? "Absen Keluar"
+                : loadingOut
+                ? "Menyimpan..."
+                : "Absen Keluar"}
             </button>
           </div>
         </div>
