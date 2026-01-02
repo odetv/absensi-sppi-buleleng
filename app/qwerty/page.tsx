@@ -1,42 +1,32 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getUsers, TypeUser } from "../../lib/datasources/listUser";
-import { getPositions, TypePosition } from "../../lib/datasources/listPosition";
 import { getLocations, TypeLocation } from "../../lib/datasources/listLocation";
 import CheckerAbsentUseSession from "@/components/CheckerAbsentUseSession";
 import type { StatusAbsent } from "@/components/CheckerAbsentUseSession";
+import Header from "@/components/Header";
+import { FormatDate, FormatTime } from "@/components/DatetimeFormat";
+import { MatchingDatetime } from "@/components/ValidationDatetime";
 
 export default function Home() {
+  const [datetimeMounted, setDatetimeMounted] = useState(false);
   const [name, setName] = useState("");
   const [position, setPosition] = useState("");
   const [description, setDescription] = useState("");
-  const [timeInput, setTimeInput] = useState("");
-  const [dateInput, setDateInput] = useState("");
   const [sppgLocation, setSppgLocation] = useState<TypeLocation | null>(null);
+  const [time, setTime] = useState(new Date());
   const [loadingIn, setLoadingIn] = useState(false);
   const [loadingOut, setLoadingOut] = useState(false);
-
+  const clockMismatch = MatchingDatetime();
   const [locations, setLocations] = useState<TypeLocation[]>([]);
   const [loadingLocation, setLoadingLocations] = useState(true);
-
-  const [positions, setPositions] = useState<TypePosition[]>([]);
-  const [filteredPositions, setFilteredPositions] = useState<TypePosition[]>(
-    []
-  );
-  const [loadingPositions, setLoadingPositions] = useState(true);
-
-  const [users, setUsers] = useState<TypeUser[]>([]);
-  const [loadingUsers, setLoadingUsers] = useState(true);
-
   const [absentStatus, setAbsentStatus] = useState<StatusAbsent | null>(null);
-
   const [statusMessage, setStatusMessage] = useState<{
     text: string;
     type: "success" | "error";
   } | null>(null);
 
   const isFormValid =
-    name && position && description && timeInput && dateInput && sppgLocation;
+    name && position && description && sppgLocation && !clockMismatch;
 
   const isButtonInDisabled =
     !isFormValid || loadingIn || loadingOut || absentStatus?.masuk;
@@ -48,50 +38,30 @@ export default function Home() {
     absentStatus?.keluar;
 
   useEffect(() => {
-    if (!name) {
-      setFilteredPositions([]);
-      setPosition("");
-      return;
-    }
-    const user = users.find((u) => u.name === name);
-    if (!user) return;
-    const matched = positions.filter((p) =>
-      user.positions.includes(p.position)
-    );
-    setFilteredPositions(matched);
-    if (matched.length === 1) {
-      setPosition(matched[0].position);
-    } else {
-      setPosition("");
-    }
-  }, [name, users, positions]);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchSession = async () => {
       try {
-        const data = await getUsers();
-        setUsers(data);
+        const res = await fetch("/api/googleapis/auth/session");
+        const data = await res.json();
+        if (data.isLoggedIn && data.user) {
+          setName(data.user.name);
+          if (data.user.position) {
+            setPosition(data.user.position);
+          }
+        }
       } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingUsers(false);
+        console.error("Gagal mengambil session", err);
       }
     };
-    fetchUsers();
+    fetchSession();
   }, []);
 
   useEffect(() => {
-    const fetchPositions = async () => {
-      try {
-        const data = await getPositions();
-        setPositions(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingPositions(false);
-      }
-    };
-    fetchPositions();
+    setDatetimeMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -115,22 +85,21 @@ export default function Home() {
 
     setStatusMessage(null);
 
-    const dateObj = new Date(dateInput);
-    const formattedDate = dateObj.toLocaleDateString("id-ID");
-    const day = dateObj.toLocaleDateString("id-ID", { weekday: "long" });
-    const [hour, minute] = timeInput.split(":");
-    const seconds = String(new Date().getSeconds()).padStart(2, "0");
-    const finalTime = `${hour}:${minute}:${seconds}`;
-    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-    const year = dateObj.getFullYear();
+    const now = new Date();
+    const date = now.toLocaleDateString("id-ID");
+    const time = now.toTimeString().split(" ")[0];
+    const day = now.toLocaleDateString("id-ID", { weekday: "long" });
+
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const year = now.getFullYear();
     const sheetName = `${month}-${year}`;
     const lat = sppgLocation.lat;
     const lon = sppgLocation.lon;
 
     const data = {
-      time: finalTime,
+      time,
       day,
-      date: formattedDate,
+      date,
       absentType: type === "masuk" ? "Masuk" : "Keluar",
       name,
       position,
@@ -171,8 +140,6 @@ export default function Home() {
       setName("");
       setPosition("");
       setDescription("");
-      setTimeInput("");
-      setDateInput("");
       setSppgLocation(null);
     } catch {
       setStatusMessage({
@@ -188,9 +155,26 @@ export default function Home() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
-        <h1 className="text-lg font-semibold text-center mb-6">
-          Absensi SPPI Buleleng Bali
-        </h1>
+        <Header />
+        <div className="mb-4 text-center">
+          <div className="w-full my-6 border-t border-gray-200" />
+          <h1 className="text-lg font-semibold">Absensi SPPI Buleleng Bali</h1>
+          <p className="text-sm text-gray-600">
+            {datetimeMounted ? FormatDate(time) : "Memuat Tanggal..."}
+          </p>
+          <p className="text-2xl font-mono mt-1">
+            {datetimeMounted ? FormatTime(time) : "--:--:--"}
+          </p>
+        </div>
+
+        {clockMismatch && (
+          <div className="bg-red-100 text-red-700 p-3 rounded-md text-sm text-center mb-3">
+            ⚠️ Waktu terdeteksi tidak cocok.
+            <br />
+            Harap sesuaikan tanggal dan jam perangkat Anda untuk melanjutkan
+            absensi.
+          </div>
+        )}
 
         {statusMessage && (
           <div
@@ -212,43 +196,20 @@ export default function Home() {
         <div className="space-y-3 mt-3">
           <select
             value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              setPosition("");
-            }}
-            disabled={loadingUsers}
-            className="w-full px-3 py-2 border rounded-lg cursor-pointer text-sm"
+            disabled={true}
+            className="w-full px-3 py-2 border rounded-lg text-sm appearance-none cursor-not-allowed"
           >
-            <option value="">
-              {loadingUsers ? "Memuat Nama..." : "Pilih Nama"}
-            </option>
-
-            {users.map((u) => (
-              <option key={u.id} value={u.name}>
-                {u.name}
-              </option>
-            ))}
+            <option value={name}>{`Nama - ` + name || "Memuat Nama..."}</option>
           </select>
 
           <select
             value={position}
-            onChange={(e) => setPosition(e.target.value)}
-            disabled={!name || loadingPositions}
-            className="w-full px-3 py-2 border rounded-lg cursor-pointer text-sm"
+            disabled={true}
+            className="w-full px-3 py-2 border rounded-lg text-sm appearance-none cursor-not-allowed"
           >
-            <option value="">
-              {!name
-                ? "Pilih Jabatan"
-                : filteredPositions.length === 0
-                ? "Tidak Memiliki Jabatan (Hubungi Admin)"
-                : "Pilih Jabatan"}
+            <option value={position}>
+              {`Jabatan - ` + position || "Memuat Jabatan..."}
             </option>
-
-            {filteredPositions.map((p) => (
-              <option key={p.id} value={p.position}>
-                {p.position}
-              </option>
-            ))}
           </select>
 
           <textarea
@@ -258,22 +219,6 @@ export default function Home() {
             rows={3}
             className="w-full px-3 py-2 border rounded-lg resize-y text-sm placeholder:text-xs"
           ></textarea>
-
-          <div className="flex flex-row gap-2">
-            <input
-              type="time"
-              value={timeInput}
-              onChange={(e) => setTimeInput(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg cursor-pointer text-sm"
-            />
-
-            <input
-              type="date"
-              value={dateInput}
-              onChange={(e) => setDateInput(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg cursor-pointer text-sm"
-            />
-          </div>
 
           <select
             value={sppgLocation?.id || ""}

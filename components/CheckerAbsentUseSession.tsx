@@ -76,7 +76,7 @@ export default function CheckerAbsentUseSession({ onStatusChange }: Props) {
           };
 
           setStatus(newStatus);
-          onStatusChange?.(newStatus); // 🔥 sinkron ke page.tsx
+          onStatusChange?.(newStatus);
         }
       } catch (err) {
         console.error("CheckerAbsent error:", err);
@@ -89,8 +89,8 @@ export default function CheckerAbsentUseSession({ onStatusChange }: Props) {
   if (loading || !user || !status) return null;
 
   return (
-    <div className="mb-3 rounded-lg border p-3 text-sm bg-gray-50">
-      <p className="font-semibold mb-1">Status Absensi - {user.name}</p>
+    <div className="mb-3 rounded-lg border p-3 text-sm bg-gray-100">
+      <p className="font-semibold mb-1">Status Absensi</p>
 
       <div className="text-xs">
         <p>

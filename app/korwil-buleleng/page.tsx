@@ -2,8 +2,6 @@
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { getUsers, TypeUser } from "../../lib/datasources/listUser";
-import { getPositions, TypePosition } from "../../lib/datasources/listPosition";
 import { TypeLocation } from "../../lib/datasources/listLocation";
 import { FormatDate, FormatTime } from "../../components/DatetimeFormat";
 import { MatchingLocation } from "../../components/ValidationLocation";
@@ -23,69 +21,11 @@ export default function Home() {
   const [loadingIn, setLoadingIn] = useState(false);
   const [loadingOut, setLoadingOut] = useState(false);
   const clockMismatch = MatchingDatetime();
-
-  const [positions, setPositions] = useState<TypePosition[]>([]);
-  const [filteredPositions, setFilteredPositions] = useState<TypePosition[]>(
-    []
-  );
-  const [loadingPositions, setLoadingPositions] = useState(true);
-
-  const [users, setUsers] = useState<TypeUser[]>([]);
-  const [loadingUsers, setLoadingUsers] = useState(true);
-
   const [absentStatus, setAbsentStatus] = useState<StatusAbsent | null>(null);
-
   const [statusMessage, setStatusMessage] = useState<{
     text: string;
     type: "success" | "error";
   } | null>(null);
-
-  useEffect(() => {
-    if (!name) {
-      setFilteredPositions([]);
-      setPosition("");
-      return;
-    }
-    const user = users.find((u) => u.name === name);
-    if (!user) return;
-    const matched = positions.filter((p) =>
-      user.positions.includes(p.position)
-    );
-    setFilteredPositions(matched);
-    if (matched.length === 1) {
-      setPosition(matched[0].position);
-    } else {
-      setPosition("");
-    }
-  }, [name, users, positions]);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const data = await getUsers();
-        setUsers(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingUsers(false);
-      }
-    };
-    fetchUsers();
-  }, []);
-
-  useEffect(() => {
-    const fetchPositions = async () => {
-      try {
-        const data = await getPositions();
-        setPositions(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoadingPositions(false);
-      }
-    };
-    fetchPositions();
-  }, []);
 
   const isFormValid =
     name &&
@@ -104,6 +44,24 @@ export default function Home() {
     loadingOut ||
     !absentStatus?.masuk ||
     absentStatus?.keluar;
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const res = await fetch("/api/googleapis/auth/session");
+        const data = await res.json();
+        if (data.isLoggedIn && data.user) {
+          setName(data.user.name);
+          if (data.user.position) {
+            setPosition(data.user.position);
+          }
+        }
+      } catch (err) {
+        console.error("Gagal mengambil session", err);
+      }
+    };
+    fetchSession();
+  }, []);
 
   useEffect(() => {
     setDatetimeMounted(true);
@@ -214,7 +172,7 @@ export default function Home() {
           <div className="w-full my-6 border-t border-gray-200" />
           <h1 className="text-lg font-semibold">Absensi SPPI Buleleng Bali</h1>
           <p className="text-sm text-gray-600">
-            {datetimeMounted ? FormatDate(time) : "Memuat tanggal..."}
+            {datetimeMounted ? FormatDate(time) : "Memuat Tanggal..."}
           </p>
           <p className="text-2xl font-mono mt-1">
             {datetimeMounted ? FormatTime(time) : "--:--:--"}
@@ -239,7 +197,7 @@ export default function Home() {
             }`}
           >
             <div className="flex items-center gap-2">
-              {statusMessage.type === "success" ? "✅" : "❌"}
+              {statusMessage.type === "success" ? "✅" : "❎"}
               {statusMessage.text}
             </div>
           </div>
@@ -250,43 +208,20 @@ export default function Home() {
         <div className="space-y-3">
           <select
             value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              setPosition("");
-            }}
-            disabled={loadingUsers}
-            className="w-full px-3 py-2 border rounded-lg cursor-pointer text-sm"
+            disabled={true}
+            className="w-full px-3 py-2 border rounded-lg text-sm appearance-none cursor-not-allowed"
           >
-            <option value="">
-              {loadingUsers ? "Memuat Nama..." : "Pilih Nama"}
-            </option>
-
-            {users.map((u) => (
-              <option key={u.id} value={u.name}>
-                {u.name}
-              </option>
-            ))}
+            <option value={name}>{`Nama - ` + name || "Memuat Nama..."}</option>
           </select>
 
           <select
             value={position}
-            onChange={(e) => setPosition(e.target.value)}
-            disabled={!name || loadingPositions}
-            className="w-full px-3 py-2 border rounded-lg cursor-pointer text-sm"
+            disabled={true}
+            className="w-full px-3 py-2 border rounded-lg text-sm appearance-none cursor-not-allowed"
           >
-            <option value="">
-              {!name
-                ? "Pilih Jabatan"
-                : filteredPositions.length === 0
-                ? "Tidak Memiliki Jabatan"
-                : "Pilih Jabatan"}
+            <option value={position}>
+              {`Jabatan - ` + position || "Memuat Jabatan..."}
             </option>
-
-            {filteredPositions.map((p) => (
-              <option key={p.id} value={p.position}>
-                {p.position}
-              </option>
-            ))}
           </select>
 
           <textarea

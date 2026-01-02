@@ -13,7 +13,7 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    
+
     const sheets = getSheetsClient();
 
     const res = await sheets.spreadsheets.values.get({
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
       name: "session_token",
       value: token,
       httpOnly: true,
-      maxAge: 60 * 60,
+      maxAge: 1800, // 30 menit
       path: "/",
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
