@@ -104,6 +104,9 @@ export default function Home() {
     const year = now.getFullYear();
     const sheetName = `${month}-${year}`;
 
+    const lat = parseFloat(latitude);
+    const lon = parseFloat(longitude);
+
     const data = {
       time,
       day,
@@ -112,8 +115,8 @@ export default function Home() {
       name,
       position,
       description,
-      latitude,
-      longitude,
+      latitude: lat,
+      longitude: lon,
       sppgLocation: sppgLocation.name,
       mapsLocation: `https://www.google.com/maps/place/${latitude},${longitude}/@${latitude},${longitude},17z`,
       sheetName,
@@ -137,7 +140,7 @@ export default function Home() {
       }
 
       setStatusMessage({
-        text: `Berhasil! ${name}, absen ${type} sudah tercatat. Mengalihkan dalam 3 detik...`,
+        text: `Berhasil! Absen ${type} sudah tercatat. Mengalihkan...`,
         type: "success",
       });
 

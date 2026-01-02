@@ -90,28 +90,28 @@ export default function CheckerAbsentUseSession({ onStatusChange }: Props) {
 
   return (
     <div className="mb-3 rounded-lg border p-3 text-sm bg-gray-100">
-      <p className="font-semibold mb-1">Status Absensi</p>
+      <p className="font-semibold">Status Absensi</p>
 
       <div className="text-xs">
         <p>
-          Absen Masuk:{" "}
+          - Absen Masuk:{" "}
           {status.masuk ? (
             <span className="text-green-600 font-semibold">
               ✔ Pukul {status.jamMasuk}
             </span>
           ) : (
-            <span className="text-red-600">✖ Belum</span>
+            <span className="text-red-600 font-semibold">✖ Belum</span>
           )}
         </p>
 
         <p>
-          Absen Keluar:{" "}
+          - Absen Keluar:{" "}
           {status.keluar ? (
             <span className="text-green-600 font-semibold">
               ✔ Pukul {status.jamKeluar}
             </span>
           ) : (
-            <span className="text-red-600">✖ Belum</span>
+            <span className="text-red-600 font-semibold">✖ Belum</span>
           )}
         </p>
       </div>

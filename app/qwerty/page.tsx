@@ -129,7 +129,7 @@ export default function Home() {
       }
 
       setStatusMessage({
-        text: `Berhasil! ${name}, absen ${type} sudah tercatat. Mengalihkan dalam 3 detik...`,
+        text: `Berhasil! Absen ${type} sudah tercatat. Mengalihkan...`,
         type: "success",
       });
 
