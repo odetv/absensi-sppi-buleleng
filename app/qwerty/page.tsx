@@ -30,6 +30,11 @@ export default function Home() {
 
   const [absentStatus, setAbsentStatus] = useState<StatusAbsent | null>(null);
 
+  const [statusMessage, setStatusMessage] = useState<{
+    text: string;
+    type: "success" | "error";
+  } | null>(null);
+
   const isFormValid =
     name && position && description && timeInput && dateInput && sppgLocation;
 
@@ -107,6 +112,9 @@ export default function Home() {
     if (!isFormValid) return;
     if (type === "masuk") setLoadingIn(true);
     if (type === "pulang") setLoadingOut(true);
+
+    setStatusMessage(null);
+
     const dateObj = new Date(dateInput);
     const formattedDate = dateObj.toLocaleDateString("id-ID");
     const day = dateObj.toLocaleDateString("id-ID", { weekday: "long" });
@@ -144,11 +152,22 @@ export default function Home() {
       });
 
       if (!res.ok) {
-        alert("Gagal menyimpan absensi. Coba lagi.");
+        setStatusMessage({
+          text: "Gagal menyimpan absensi ke server.",
+          type: "error",
+        });
         return;
       }
 
-      alert(`Hai ${name}, absen ${type} berhasil disimpan.`);
+      setStatusMessage({
+        text: `Berhasil! ${name}, absen ${type} sudah tercatat. Mengalihkan dalam 3 detik...`,
+        type: "success",
+      });
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+
       setName("");
       setPosition("");
       setDescription("");
@@ -156,7 +175,10 @@ export default function Home() {
       setDateInput("");
       setSppgLocation(null);
     } catch {
-      alert("Terjadi kesalahan koneksi. Coba beberapa saat lagi.");
+      setStatusMessage({
+        text: "Terjadi kesalahan koneksi. Silahkan coba lagi.",
+        type: "error",
+      });
     } finally {
       if (type === "masuk") setLoadingIn(false);
       if (type === "pulang") setLoadingOut(false);
@@ -169,6 +191,21 @@ export default function Home() {
         <h1 className="text-lg font-semibold text-center mb-6">
           Absensi SPPI Buleleng Bali
         </h1>
+
+        {statusMessage && (
+          <div
+            className={`p-4 rounded-lg mb-4 text-sm font-medium border ${
+              statusMessage.type === "success"
+                ? "bg-green-50 border-green-200 text-green-700 animate-pulse"
+                : "bg-red-50 border-red-200 text-red-700"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              {statusMessage.type === "success" ? "✅" : "❎"}
+              {statusMessage.text}
+            </div>
+          </div>
+        )}
 
         <CheckerAbsentUseSession onStatusChange={setAbsentStatus} />
 

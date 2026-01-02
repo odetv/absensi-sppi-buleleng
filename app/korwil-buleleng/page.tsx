@@ -35,6 +35,11 @@ export default function Home() {
 
   const [absentStatus, setAbsentStatus] = useState<StatusAbsent | null>(null);
 
+  const [statusMessage, setStatusMessage] = useState<{
+    text: string;
+    type: "success" | "error";
+  } | null>(null);
+
   useEffect(() => {
     if (!name) {
       setFilteredPositions([]);
@@ -129,11 +134,17 @@ export default function Home() {
     if (!isFormValid) return;
     if (type === "masuk") setLoadingIn(true);
     if (type === "pulang") setLoadingOut(true);
+
+    setStatusMessage(null);
+
     const now = new Date();
     const date = now.toLocaleDateString("id-ID");
     const time = now.toTimeString().split(" ")[0];
     const day = now.toLocaleDateString("id-ID", { weekday: "long" });
-    const sheetName = `${now.getMonth() + 1}-${now.getFullYear()}`;
+
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const year = now.getFullYear();
+    const sheetName = `${month}-${year}`;
 
     const data = {
       time,
@@ -160,21 +171,35 @@ export default function Home() {
       });
 
       if (!res.ok) {
-        alert("Gagal menyimpan absensi. Coba lagi.");
+        setStatusMessage({
+          text: "Gagal menyimpan absensi ke server.",
+          type: "error",
+        });
         return;
       }
 
-      alert(`Hai ${name}, absen ${type} berhasil disimpan.`);
+      setStatusMessage({
+        text: `Berhasil! ${name}, absen ${type} sudah tercatat. Mengalihkan dalam 3 detik...`,
+        type: "success",
+      });
+
       setName("");
       setPosition("");
       setDescription("");
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
 
       navigator.geolocation.getCurrentPosition((pos) => {
         setLatitude(pos.coords.latitude.toFixed(6));
         setLongitude(pos.coords.longitude.toFixed(6));
       });
     } catch {
-      alert("Terjadi kesalahan koneksi. Coba beberapa saat lagi.");
+      setStatusMessage({
+        text: "Terjadi kesalahan koneksi. Silahkan coba lagi.",
+        type: "error",
+      });
     } finally {
       if (type === "masuk") setLoadingIn(false);
       if (type === "pulang") setLoadingOut(false);
@@ -202,6 +227,21 @@ export default function Home() {
             <br />
             Harap sesuaikan tanggal dan jam perangkat Anda untuk melanjutkan
             absensi.
+          </div>
+        )}
+
+        {statusMessage && (
+          <div
+            className={`p-4 rounded-lg mb-4 text-sm font-medium border ${
+              statusMessage.type === "success"
+                ? "bg-green-50 border-green-200 text-green-700 animate-pulse"
+                : "bg-red-50 border-red-200 text-red-700"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              {statusMessage.type === "success" ? "✅" : "❌"}
+              {statusMessage.text}
+            </div>
           </div>
         )}
 

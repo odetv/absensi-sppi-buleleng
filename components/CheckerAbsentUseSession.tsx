@@ -26,7 +26,9 @@ export default function CheckerAbsentUseSession({ onStatusChange }: Props) {
 
   const now = new Date();
   const date = now.toLocaleDateString("id-ID");
-  const sheetName = `${now.getMonth() + 1}-${now.getFullYear()}`;
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const year = now.getFullYear();
+  const sheetName = `${month}-${year}`;
 
   useEffect(() => {
     const fetchSession = async () => {
