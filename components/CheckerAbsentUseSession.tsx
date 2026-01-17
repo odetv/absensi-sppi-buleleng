@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type StatusAbsent = {
   masuk: boolean;
@@ -29,6 +29,12 @@ export default function CheckerAbsentUseSession({ onStatusChange }: Props) {
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const year = now.getFullYear();
   const sheetName = `${month}-${year}`;
+
+  const onStatusChangeRef = useRef(onStatusChange);
+
+  useEffect(() => {
+    onStatusChangeRef.current = onStatusChange;
+  }, [onStatusChange]);
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -76,7 +82,7 @@ export default function CheckerAbsentUseSession({ onStatusChange }: Props) {
           };
 
           setStatus(newStatus);
-          onStatusChange?.(newStatus);
+          onStatusChangeRef.current?.(newStatus);
         }
       } catch (err) {
         console.error("CheckerAbsent error:", err);
@@ -84,7 +90,7 @@ export default function CheckerAbsentUseSession({ onStatusChange }: Props) {
     };
 
     checkAbsent();
-  }, [user, date, sheetName, onStatusChange]);
+  }, [user?.name, date, sheetName]);
 
   if (loading || !user || !status) return null;
 

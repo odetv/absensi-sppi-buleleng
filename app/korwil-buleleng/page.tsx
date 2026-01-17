@@ -22,6 +22,7 @@ export default function Home() {
   const [loadingOut, setLoadingOut] = useState(false);
   const clockMismatch = MatchingDatetime();
   const [absentStatus, setAbsentStatus] = useState<StatusAbsent | null>(null);
+  const [isStatusLoading, setIsStatusLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState<{
     text: string;
     type: "success" | "error";
@@ -37,11 +38,16 @@ export default function Home() {
     !clockMismatch;
 
   const isButtonInDisabled =
-    !isFormValid || loadingIn || loadingOut || absentStatus?.masuk;
+    !isFormValid ||
+    loadingIn ||
+    loadingOut ||
+    isStatusLoading ||
+    absentStatus?.masuk;
   const isButtonOutDisabled =
     !isFormValid ||
     loadingIn ||
     loadingOut ||
+    isStatusLoading ||
     !absentStatus?.masuk ||
     absentStatus?.keluar;
 
@@ -206,7 +212,20 @@ export default function Home() {
           </div>
         )}
 
-        <CheckerAbsentUseSession onStatusChange={setAbsentStatus} />
+        {isStatusLoading && (
+          <div className="py-2 animate-pulse">
+            <span className="text-xs text-orange-600 font-medium">
+              ⏳ Tunggu, sedang menghubungkan ke server...
+            </span>
+          </div>
+        )}
+
+        <CheckerAbsentUseSession
+          onStatusChange={(status) => {
+            setAbsentStatus(status);
+            setIsStatusLoading(false);
+          }}
+        />
 
         <div className="space-y-3">
           <select
@@ -330,8 +349,8 @@ export default function Home() {
                   : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
               }`}
             >
-              {absentStatus?.masuk
-                ? "Absen Masuk"
+              {isStatusLoading
+                ? "Loading..."
                 : loadingIn
                 ? "Menyimpan..."
                 : "Absen Masuk"}
@@ -347,8 +366,8 @@ export default function Home() {
                   : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
               }`}
             >
-              {absentStatus?.keluar
-                ? "Absen Keluar"
+              {isStatusLoading
+                ? "Loading..."
                 : loadingOut
                 ? "Menyimpan..."
                 : "Absen Keluar"}
